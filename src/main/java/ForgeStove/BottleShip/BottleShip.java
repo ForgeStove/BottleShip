@@ -60,12 +60,11 @@ import static net.minecraftforge.registries.DeferredRegister.create;
 		if (!(livingEntity instanceof Player player)) return;
 		int progress = tickCount * 1000 / chargeTime;
 		if (progress == 18) player.playSound(NOTE_BLOCK_BELL.value(), 5.0F, 5.0F);
-		StringBuilder progressBar = new StringBuilder("§f[");
+		StringBuilder progressBar = new StringBuilder();
 		for (int i = 0; i < 18; i++) {
 			if (i < progress) progressBar.append("§a■");
 			else progressBar.append("§c■");
 		}
-		progressBar.append("§f]");
 		player.displayClientMessage(literal(progressBar.toString()), true);
 	}
 }
