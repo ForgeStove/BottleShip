@@ -2,6 +2,7 @@ package ForgeStove.BottleShip;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -9,13 +10,14 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3d;
 import org.joml.primitives.AABBdc;
 import org.valkyrienskies.core.api.ships.ServerShip;
 
 import java.util.List;
 
 import static ForgeStove.BottleShip.BottleShip.*;
-import static ForgeStove.BottleShip.Commands.*;
+import static ForgeStove.BottleShip.Commands.setStatic;
 import static ForgeStove.BottleShip.Config.*;
 import static java.lang.Math.*;
 import static net.minecraft.network.chat.Component.*;
@@ -70,8 +72,7 @@ public class BottleWithShipItem extends Item {
 	}
 	@Override
 	public void releaseUsing(
-			@NotNull ItemStack itemStack,
-			@NotNull Level level, @NotNull LivingEntity livingEntity, int tickLeft
+			@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity, int tickLeft
 	) {
 		if (level.isClientSide()) return;
 		int tickCount = getUseDuration(itemStack) - tickLeft;
@@ -100,14 +101,7 @@ public class BottleWithShipItem extends Item {
 		targetX += (dx * (depth / 2));
 		targetY += (dy * massHeight);
 		targetZ += (dz * (depth / 2));
-		teleport(
-				player.getName().getString(),
-				ship,
-				server,
-				(long) (targetX - player.getX()),
-				(long) (targetY + massHeight - player.getY()),
-				(long) (targetZ - player.getZ())
-		);
+		Teleport.teleportShip(ship, (ServerLevel) level, new Vector3d(targetX, targetY, targetZ));
 		setStatic(ship, server, false);
 		ItemStack newStack = new ItemStack(BOTTLE_WITHOUT_SHIP.get());
 		player.setItemInHand(player.getUsedItemHand(), newStack);
