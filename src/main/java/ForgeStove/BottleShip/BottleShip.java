@@ -1,5 +1,4 @@
 package ForgeStove.BottleShip;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -12,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static ForgeStove.BottleShip.BottleShip.MOD_ID;
 import static ForgeStove.BottleShip.Config.CONFIG_SPEC;
+import static net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB;
 import static net.minecraft.network.chat.Component.*;
 import static net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL;
 import static net.minecraft.world.item.CreativeModeTab.builder;
@@ -19,36 +19,37 @@ import static net.minecraft.world.item.Item.Properties;
 import static net.minecraft.world.item.Rarity.UNCOMMON;
 import static net.minecraftforge.fml.config.ModConfig.Type.SERVER;
 import static net.minecraftforge.registries.DeferredRegister.create;
+import static net.minecraftforge.registries.ForgeRegistries.ITEMS;
 @Mod(MOD_ID) public class BottleShip {
 	public static final String MOD_ID = "bottle_ship";
-	public static final DeferredRegister<CreativeModeTab> TABS;
 	public static final RegistryObject<Item> BOTTLE_WITHOUT_SHIP;
 	public static final RegistryObject<Item> BOTTLE_WITH_SHIP;
-	public static final RegistryObject<CreativeModeTab> ITEM_TAB;
-	public static final DeferredRegister<Item> ITEMS;
+	public static final RegistryObject<CreativeModeTab> TAB_REGISTRY_OBJECT;
+	public static final DeferredRegister<Item> ITEM_DEFERRED_REGISTER;
+	public static final DeferredRegister<CreativeModeTab> TAB_DEFERRED_REGISTER;
 	static {
-		TABS = create(Registries.CREATIVE_MODE_TAB, MOD_ID);
-		ITEMS = create(ForgeRegistries.ITEMS, MOD_ID);
-		BOTTLE_WITHOUT_SHIP = ITEMS.register(
+		ITEM_DEFERRED_REGISTER = create(ITEMS, MOD_ID);
+		TAB_DEFERRED_REGISTER = create(CREATIVE_MODE_TAB, MOD_ID);
+		BOTTLE_WITHOUT_SHIP = ITEM_DEFERRED_REGISTER.register(
 				"bottle_without_ship",
 				() -> new BottleWithoutShipItem(new Properties().stacksTo(1))
 		);
-		BOTTLE_WITH_SHIP = ITEMS.register(
+		BOTTLE_WITH_SHIP = ITEM_DEFERRED_REGISTER.register(
 				"bottle_with_ship",
 				() -> new BottleWithShipItem(new Properties().stacksTo(1).rarity(UNCOMMON).fireResistant())
 		);
-		ITEM_TAB = TABS.register(
-				"tab." + MOD_ID, () -> builder().title(translatable("tab." + MOD_ID))
-						.icon(() -> BOTTLE_WITH_SHIP.get().getDefaultInstance())
-						.displayItems((parameters, output) -> output.accept(BOTTLE_WITHOUT_SHIP.get()))
-						.build()
+		TAB_REGISTRY_OBJECT = TAB_DEFERRED_REGISTER.register(
+				"tab." + MOD_ID,
+				builder().title(translatable("tab." + MOD_ID))
+						.icon(BOTTLE_WITH_SHIP.get()::getDefaultInstance)
+						.displayItems((parameters, output) -> output.accept(BOTTLE_WITHOUT_SHIP.get()))::build
 		);
 	}
 	public BottleShip(@NotNull FMLJavaModLoadingContext context) {
 		IEventBus modEventBus = context.getModEventBus();
 		context.registerConfig(SERVER, CONFIG_SPEC);
-		ITEMS.register(modEventBus);
-		TABS.register(modEventBus);
+		ITEM_DEFERRED_REGISTER.register(modEventBus);
+		TAB_DEFERRED_REGISTER.register(modEventBus);
 	}
 	public static void onUseTickCommon(
 			@NotNull Level level,
@@ -56,8 +57,7 @@ import static net.minecraftforge.registries.DeferredRegister.create;
 			int tickCount,
 			int chargeTime
 	) {
-		if (!level.isClientSide()) return;
-		if (!(livingEntity instanceof Player player)) return;
+		if (!(level.isClientSide() && livingEntity instanceof Player player)) return;
 		int progress = tickCount * 1000 / chargeTime;
 		if (progress == 18) player.playSound(NOTE_BLOCK_BELL.value(), 5.0F, 5.0F);
 		StringBuilder progressBar = new StringBuilder();
