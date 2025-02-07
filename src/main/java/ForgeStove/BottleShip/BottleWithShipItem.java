@@ -19,6 +19,7 @@ import java.util.List;
 import static ForgeStove.BottleShip.BottleShip.*;
 import static ForgeStove.BottleShip.Commands.setStatic;
 import static ForgeStove.BottleShip.Config.*;
+import static ForgeStove.BottleShip.Teleport.teleport;
 import static java.lang.Math.*;
 import static net.minecraft.network.chat.Component.*;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_EMPTY;
@@ -72,7 +73,10 @@ public class BottleWithShipItem extends Item {
 	}
 	@Override
 	public void releaseUsing(
-			@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity, int tickLeft
+			@NotNull ItemStack itemStack,
+			@NotNull Level level,
+			@NotNull LivingEntity livingEntity,
+			int tickLeft
 	) {
 		if (level.isClientSide()) return;
 		int tickCount = getUseDuration(itemStack) - tickLeft;
@@ -101,7 +105,7 @@ public class BottleWithShipItem extends Item {
 		targetX += (dx * (depth / 2));
 		targetY += (dy * massHeight);
 		targetZ += (dz * (depth / 2));
-		Teleport.teleportShip(ship, (ServerLevel) level, new Vector3d(targetX, targetY, targetZ));
+		teleport(ship, (ServerLevel) level, new Vector3d(targetX, targetY, targetZ));
 		setStatic(ship, server, false);
 		ItemStack newStack = new ItemStack(BOTTLE_WITHOUT_SHIP.get());
 		player.setItemInHand(player.getUsedItemHand(), newStack);
