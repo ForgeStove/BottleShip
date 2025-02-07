@@ -10,16 +10,14 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3d;
 import org.joml.primitives.AABBdc;
 import org.valkyrienskies.core.api.ships.ServerShip;
 
 import java.util.List;
 
 import static ForgeStove.BottleShip.BottleShip.*;
-import static ForgeStove.BottleShip.Commands.setStatic;
 import static ForgeStove.BottleShip.Config.*;
-import static ForgeStove.BottleShip.Teleport.teleport;
+import static ForgeStove.BottleShip.Teleport.teleportShip;
 import static java.lang.Math.*;
 import static net.minecraft.network.chat.Component.*;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_EMPTY;
@@ -105,8 +103,7 @@ public class BottleWithShipItem extends Item {
 		targetX += (dx * (depth / 2));
 		targetY += (dy * massHeight);
 		targetZ += (dz * (depth / 2));
-		teleport(ship, (ServerLevel) level, new Vector3d(targetX, targetY, targetZ));
-		setStatic(ship, server, false);
+		teleportShip((ServerLevel) level, ship, targetX, targetY, targetZ);
 		ItemStack newStack = new ItemStack(BOTTLE_WITHOUT_SHIP.get());
 		player.setItemInHand(player.getUsedItemHand(), newStack);
 		player.getCooldowns().addCooldown(newStack.getItem(), bottleWithShipCooldown.get());

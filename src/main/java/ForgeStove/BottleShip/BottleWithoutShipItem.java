@@ -1,7 +1,6 @@
 package ForgeStove.BottleShip;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,14 +10,12 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3d;
 import org.joml.primitives.AABBic;
 import org.valkyrienskies.core.api.ships.ServerShip;
 
 import static ForgeStove.BottleShip.BottleShip.*;
-import static ForgeStove.BottleShip.Commands.setStatic;
 import static ForgeStove.BottleShip.Config.*;
-import static ForgeStove.BottleShip.Teleport.teleport;
+import static ForgeStove.BottleShip.Teleport.teleportShip;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_FILL;
 import static net.minecraft.sounds.SoundSource.PLAYERS;
 import static net.minecraft.world.InteractionResult.*;
@@ -63,12 +60,10 @@ public class BottleWithoutShipItem extends Item {
 	) {
 		if (level.isClientSide()) return;
 		if ((getUseDuration(itemStack) - tickLeft) * 1000 / 20 < bottleWithoutShipChargeTime.get()) return;
-		MinecraftServer server = level.getServer();
 		if (!(livingEntity instanceof Player player)) return;
 		if (ship == null) return;
 		long id = ship.getId();
-		setStatic(ship, server, true);
-		teleport(ship, (ServerLevel) level, new Vector3d(-blockPos.getX(), blockPos.getY(), -blockPos.getZ()));
+		teleportShip((ServerLevel) level, ship, blockPos.getX(), blockPos.getY(), blockPos.getZ());
 		CompoundTag nbt = new CompoundTag();
 		nbt.putString("ID", String.valueOf(id));
 		if (ship.getSlug() != null) nbt.putString("Name", ship.getSlug());
