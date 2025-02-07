@@ -40,9 +40,10 @@ import static net.minecraftforge.registries.ForgeRegistries.ITEMS;
 		);
 		TAB_REGISTRY_OBJECT = TAB_DEFERRED_REGISTER.register(
 				"tab." + MOD_ID,
-				builder().title(translatable("tab." + MOD_ID))
-						.icon(BOTTLE_WITH_SHIP.get()::getDefaultInstance)
-						.displayItems((parameters, output) -> output.accept(BOTTLE_WITHOUT_SHIP.get()))::build
+				() -> builder().title(translatable("tab." + MOD_ID))
+						.icon(() -> BOTTLE_WITH_SHIP.get().getDefaultInstance())
+						.displayItems((parameters, output) -> output.accept(BOTTLE_WITHOUT_SHIP.get()))
+						.build()
 		);
 	}
 	public BottleShip(@NotNull FMLJavaModLoadingContext context) {

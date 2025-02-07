@@ -31,7 +31,6 @@ public class BottleWithoutShipItem extends Item {
 		if (level.isClientSide()) return FAIL;
 		Player player = useOnContext.getPlayer();
 		if (player == null || player instanceof FakePlayer) return FAIL;
-		if (player.getVehicle() != null) player.stopRiding();
 		blockPos = useOnContext.getClickedPos();
 		ship = getShipManagingPos((ServerLevel) level, blockPos);
 		if (ship == null) return FAIL;
@@ -62,6 +61,7 @@ public class BottleWithoutShipItem extends Item {
 		if ((getUseDuration(itemStack) - tickLeft) * 1000 / 20 < bottleWithoutShipChargeTime.get()) return;
 		if (!(livingEntity instanceof Player player)) return;
 		if (ship == null) return;
+		if (player.getVehicle() != null) player.stopRiding();
 		long id = ship.getId();
 		teleportShip((ServerLevel) level, ship, blockPos.getX(), blockPos.getY(), blockPos.getZ());
 		CompoundTag nbt = new CompoundTag();
