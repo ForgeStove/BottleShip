@@ -13,12 +13,14 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.primitives.AABBic;
 import org.valkyrienskies.core.api.ships.ServerShip;
 
-import static ForgeStove.BottleShip.BottleShip.*;
+import static ForgeStove.BottleShip.BottleShip.BOTTLE_WITH_SHIP;
 import static ForgeStove.BottleShip.Config.*;
 import static ForgeStove.BottleShip.Teleport.teleportShip;
+import static net.minecraft.network.chat.Component.literal;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_FILL;
 import static net.minecraft.sounds.SoundSource.PLAYERS;
 import static net.minecraft.world.InteractionResult.*;
+import static net.minecraft.world.item.UseAnim.BOW;
 import static org.valkyrienskies.mod.common.VSGameUtilsKt.getShipManagingPos;
 public class BottleWithoutShipItem extends Item {
 	private BlockPos blockPos;
@@ -26,15 +28,18 @@ public class BottleWithoutShipItem extends Item {
 	public BottleWithoutShipItem(Properties properties) {
 		super(properties);
 	}
-	@Override public @NotNull InteractionResult useOn(@NotNull UseOnContext useOnContext) {
-		Level level = useOnContext.getLevel();
+	@Override public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemStack) {
+		return BOW;
+	}
+	@Override public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
+		Level level = context.getLevel();
 		if (level.isClientSide()) return PASS;
-		Player player = useOnContext.getPlayer();
+		Player player = context.getPlayer();
 		if (player == null || player instanceof FakePlayer) return FAIL;
-		blockPos = useOnContext.getClickedPos();
+		blockPos = context.getClickedPos();
 		ship = getShipManagingPos((ServerLevel) level, blockPos);
 		if (ship == null) return FAIL;
-		player.startUsingItem(useOnContext.getHand());
+		player.startUsingItem(context.getHand());
 		return CONSUME;
 	}
 	@Override
@@ -44,11 +49,26 @@ public class BottleWithoutShipItem extends Item {
 			@NotNull ItemStack itemStack,
 			int tickLeft
 	) {
-		if (!level.isClientSide()) return;
-		onUseTickCommon(level, livingEntity, getUseDuration(itemStack) - tickLeft, bottleWithoutShipChargeTime.get());
+		onUseTickCore(level, livingEntity, itemStack, tickLeft, bottleWithoutShipChargeTime.get());
+	}
+	public void onUseTickCore(
+			@NotNull Level level,
+			@NotNull LivingEntity livingEntity,
+			@NotNull ItemStack itemStack,
+			int tickLeft,
+			int chargeTime
+	) {
+		if (level.isClientSide() || chargeTime == 0 || !(livingEntity instanceof Player player)) return;
+		int progress = (getUseDuration(itemStack) - tickLeft) * 1000 / chargeTime;
+		StringBuilder progressBar = new StringBuilder();
+		for (int i = 0; i < 18; i++) {
+			if (i < progress) progressBar.append("§a■");
+			else progressBar.append("§c■");
+		}
+		player.displayClientMessage(literal(progressBar.toString()), true);
 	}
 	@Override public int getUseDuration(@NotNull ItemStack itemStack) {
-		return 100000;
+		return 72000;
 	}
 	@Override
 	public void releaseUsing(
@@ -82,8 +102,5 @@ public class BottleWithoutShipItem extends Item {
 		player.setItemInHand(player.getUsedItemHand(), newStack);
 		player.getCooldowns().addCooldown(newStack.getItem(), bottleWithoutShipCooldown.get());
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), BOTTLE_FILL, PLAYERS, 1.0F, 1.0F);
-	}
-	@Override public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemStack) {
-		return UseAnim.BOW;
 	}
 }

@@ -6,8 +6,8 @@ buildscript {
     dependencies { classpath 'org.spongepowered:mixingradle:0.7+' }
 }
 plugins {
-    id 'eclipse'
     id 'idea'
+    id 'eclipse'
     id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
     id 'org.jetbrains.kotlin.jvm' version '1.9.22'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22'
@@ -54,14 +54,9 @@ repositories {
         }
     }
     maven {
-        name = 'Kotlin for Forge'
-        url = 'https://thedarkcolour.github.io/KotlinForForge/'
-    }
-    maven {
         name = "Valkyrien Skies Internal"
         url = 'https://maven.valkyrienskies.org'
     }
-    maven { url "https://maven.architectury.dev/" }
     maven {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
@@ -74,16 +69,21 @@ dependencies {
     compileOnly("org.valkyrienskies.core:util:${vs_core_version}")
     compileOnly("org.valkyrienskies.core:impl:${vs_core_version}")
     implementation fg.deobf(fileTree(dir: 'libs', include: '*.jar'))
-    implementation fg.deobf("thedarkcolour:kotlinforforge:$kotlinforforge_version")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
 }
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-                             forge_version       : forge_version, forge_version_range: forge_version_range,
-                             loader_version_range: loader_version_range,
-                             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-                             mod_authors         : mod_authors, mod_description: mod_description,
-                             vs2_version_range: vs2_version_range, vm_version_range: vm_version_range,]
+    var replaceProperties = [minecraft_version      : minecraft_version,
+                             minecraft_version_range: minecraft_version_range,
+                             forge_version_range    : forge_version_range,
+                             loader_version_range   : loader_version_range,
+                             mod_id                 : mod_id,
+                             mod_name               : mod_name,
+                             mod_license            : mod_license,
+                             mod_version            : mod_version,
+                             mod_authors            : mod_authors,
+                             mod_description        : mod_description,
+                             vs2_version_range      : vs2_version_range,
+                             vm_version_range       : vm_version_range]
 
     inputs.properties replaceProperties
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand replaceProperties + [project: project] }

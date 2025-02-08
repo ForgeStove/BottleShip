@@ -12,10 +12,15 @@ public class Config {
 	public static final Pair<Config, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Config::new);
 	public static final ForgeConfigSpec CONFIG_SPEC = specPair.getValue();
 	public Config(ForgeConfigSpec.@NotNull Builder builder) {
-		bottleWithoutShipChargeTime = builder.defineInRange("bottleWithoutShipChargeTime/ms", 1000, 0, 100000);
+		bottleWithoutShipChargeTime = builder.defineInRange("bottleWithoutShipChargeTime/ms", 1000, 0, 72000);
 		bottleWithoutShipCooldown = builder.defineInRange("bottleWithoutShipCooldown/tick", 60, 0, Integer.MAX_VALUE);
-		bottleWithShipChargeTime = builder.defineInRange("bottleWithShipChargeTime/ms", 1000, 0, 100000);
+		bottleWithShipChargeTime = builder.defineInRange("bottleWithShipChargeTime/ms", 1000, 0, 72000);
 		bottleWithShipCooldown = builder.defineInRange("bottleWithShipCooldown/tick", 60, 0, Integer.MAX_VALUE);
-		bottleWithShipChargeStrength = builder.defineInRange("bottleWithShipChargeStrength", 5, 0, Integer.MAX_VALUE);
+		bottleWithShipChargeStrength = builder.defineInRange(
+				"bottleWithShipChargeStrength/s/block",
+				5,
+				0,
+				Integer.MAX_VALUE
+		);
 	}
 }

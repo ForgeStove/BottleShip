@@ -7,6 +7,7 @@ import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -23,9 +24,8 @@ import static net.minecraft.network.chat.Component.*;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_EMPTY;
 import static net.minecraft.sounds.SoundSource.PLAYERS;
 import static net.minecraft.world.InteractionResultHolder.*;
-import static net.minecraft.world.item.UseAnim.BOW;
 import static org.valkyrienskies.mod.common.VSGameUtilsKt.getVsPipeline;
-public class BottleWithShipItem extends Item {
+public class BottleWithShipItem extends BottleWithoutShipItem {
 	public BottleWithShipItem(Properties properties) {
 		super(properties);
 	}
@@ -46,6 +46,9 @@ public class BottleWithShipItem extends Item {
 		));
 		tooltip.add(translatable("tooltip." + MOD_ID + ".size", literal(nbt.getString("Size"))));
 	}
+	public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
+		return InteractionResult.PASS;
+	}
 	@Override
 	public void onUseTick(
 			@NotNull Level level,
@@ -53,10 +56,7 @@ public class BottleWithShipItem extends Item {
 			@NotNull ItemStack itemStack,
 			int tickLeft
 	) {
-		onUseTickCommon(level, livingEntity, getUseDuration(itemStack) - tickLeft, bottleWithShipChargeTime.get());
-	}
-	@Override public int getUseDuration(@NotNull ItemStack itemStack) {
-		return 100000;
+		onUseTickCore(level, livingEntity, itemStack, tickLeft, bottleWithShipChargeTime.get());
 	}
 	@Override
 	public @NotNull InteractionResultHolder<ItemStack> use(
@@ -79,7 +79,7 @@ public class BottleWithShipItem extends Item {
 		if (level.isClientSide()) return;
 		int tickCount = getUseDuration(itemStack) - tickLeft;
 		if (tickCount * 1000 / 20 < bottleWithShipChargeTime.get()) return;
-		long strength = min(tickCount / 20 * bottleWithShipChargeStrength.get(), bottleWithShipChargeTime.get());
+		int strength = tickCount / 20 * bottleWithShipChargeStrength.get();
 		if (!(livingEntity instanceof Player player)) return;
 		if (itemStack.getTag() == null) return;
 		long shipID = Long.parseLong(itemStack.getTag().getString("ID"));
@@ -108,8 +108,5 @@ public class BottleWithShipItem extends Item {
 		player.setItemInHand(player.getUsedItemHand(), newStack);
 		player.getCooldowns().addCooldown(newStack.getItem(), bottleWithShipCooldown.get());
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), BOTTLE_EMPTY, PLAYERS, 1.0F, 1.0F);
-	}
-	@Override public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemStack) {
-		return BOW;
 	}
 }

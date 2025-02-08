@@ -1,8 +1,5 @@
 package ForgeStove.BottleShip;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -12,8 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import static ForgeStove.BottleShip.BottleShip.MOD_ID;
 import static ForgeStove.BottleShip.Config.CONFIG_SPEC;
 import static net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB;
-import static net.minecraft.network.chat.Component.*;
-import static net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL;
+import static net.minecraft.network.chat.Component.translatable;
 import static net.minecraft.world.item.CreativeModeTab.builder;
 import static net.minecraft.world.item.Item.Properties;
 import static net.minecraft.world.item.Rarity.UNCOMMON;
@@ -51,21 +47,5 @@ import static net.minecraftforge.registries.ForgeRegistries.ITEMS;
 		context.registerConfig(SERVER, CONFIG_SPEC);
 		ITEM_DEFERRED_REGISTER.register(modEventBus);
 		TAB_DEFERRED_REGISTER.register(modEventBus);
-	}
-	public static void onUseTickCommon(
-			@NotNull Level level,
-			@NotNull LivingEntity livingEntity,
-			int tickCount,
-			int chargeTime
-	) {
-		if (!(level.isClientSide() && livingEntity instanceof Player player)) return;
-		int progress = tickCount * 1000 / chargeTime;
-		if (progress == 18) player.playSound(NOTE_BLOCK_BELL.value(), 5.0F, 5.0F);
-		StringBuilder progressBar = new StringBuilder();
-		for (int i = 0; i < 18; i++) {
-			if (i < progress) progressBar.append("§a■");
-			else progressBar.append("§c■");
-		}
-		player.displayClientMessage(literal(progressBar.toString()), true);
 	}
 }
