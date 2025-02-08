@@ -65,7 +65,7 @@ public class BottleWithShipItem extends Item {
 			@NotNull InteractionHand hand
 	) {
 		ItemStack currentStack = player.getItemInHand(hand);
-		if (level.isClientSide()) return fail(currentStack);
+		if (level.isClientSide()) return pass(currentStack);
 		player.startUsingItem(hand);
 		return consume(currentStack);
 	}

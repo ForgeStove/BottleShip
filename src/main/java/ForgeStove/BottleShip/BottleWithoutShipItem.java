@@ -28,7 +28,7 @@ public class BottleWithoutShipItem extends Item {
 	}
 	@Override public @NotNull InteractionResult useOn(@NotNull UseOnContext useOnContext) {
 		Level level = useOnContext.getLevel();
-		if (level.isClientSide()) return FAIL;
+		if (level.isClientSide()) return PASS;
 		Player player = useOnContext.getPlayer();
 		if (player == null || player instanceof FakePlayer) return FAIL;
 		blockPos = useOnContext.getClickedPos();
