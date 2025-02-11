@@ -1,16 +1,19 @@
 package ForgeStove.BottleShip;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
-import org.joml.primitives.AABBic;
+import org.joml.Vector3dc;
+import org.joml.primitives.*;
 import org.valkyrienskies.core.api.ships.ServerShip;
 
 import static ForgeStove.BottleShip.BottleShip.BOTTLE_WITH_SHIP;
@@ -23,9 +26,8 @@ import static net.minecraft.world.InteractionResult.*;
 import static net.minecraft.world.item.UseAnim.BOW;
 import static org.valkyrienskies.mod.common.VSGameUtilsKt.getShipManagingPos;
 public class BottleWithoutShipItem extends Item {
-	private BlockPos blockPos;
 	private ServerShip ship;
-	public BottleWithoutShipItem(Properties properties) {
+	public BottleWithoutShipItem(@NotNull Properties properties) {
 		super(properties);
 	}
 	@Override public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemStack) {
@@ -36,8 +38,7 @@ public class BottleWithoutShipItem extends Item {
 		if (level.isClientSide()) return PASS;
 		Player player = context.getPlayer();
 		if (player == null || player instanceof FakePlayer) return FAIL;
-		blockPos = context.getClickedPos();
-		ship = getShipManagingPos((ServerLevel) level, blockPos);
+		ship = getShipManagingPos((ServerLevel) level, context.getClickedPos());
 		if (ship == null) return FAIL;
 		player.startUsingItem(context.getHand());
 		return CONSUME;
@@ -81,11 +82,23 @@ public class BottleWithoutShipItem extends Item {
 		if ((getUseDuration(itemStack) - tickLeft) * 1000 / 20 < bottleWithoutShipChargeTime.get()) return;
 		if (!(livingEntity instanceof Player player)) return;
 		if (ship == null) return;
-		if (player.getVehicle() != null) player.stopRiding();
-		long id = ship.getId();
-		teleportShip((ServerLevel) level, ship, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+		AABBdc worldAABB = ship.getWorldAABB();
+		for (Entity entity : level.getEntities(
+				null,
+				new AABB(
+						worldAABB.minX(),
+						worldAABB.minY(),
+						worldAABB.minZ(),
+						worldAABB.maxX(),
+						worldAABB.maxY(),
+						worldAABB.maxZ()
+				)
+		))
+			if (entity instanceof Player) entity.stopRiding();
+		Vector3dc position = ship.getTransform().getPositionInShip();
+		teleportShip((ServerLevel) level, ship, -position.x(), position.y(), -position.z());
 		CompoundTag nbt = new CompoundTag();
-		nbt.putString("ID", String.valueOf(id));
+		nbt.putString("ID", String.valueOf(ship.getId()));
 		if (ship.getSlug() != null) nbt.putString("Name", ship.getSlug());
 		AABBic shipAABB = ship.getShipAABB();
 		if (shipAABB == null) return;
@@ -99,8 +112,21 @@ public class BottleWithoutShipItem extends Item {
 		);
 		ItemStack newStack = new ItemStack(BOTTLE_WITH_SHIP.get());
 		newStack.setTag(nbt);
-		player.setItemInHand(player.getUsedItemHand(), newStack);
-		player.getCooldowns().addCooldown(newStack.getItem(), bottleWithoutShipCooldown.get());
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), BOTTLE_FILL, PLAYERS, 1.0F, 1.0F);
+		setItem(itemStack, level, player, newStack, bottleWithoutShipCooldown, BOTTLE_FILL);
+	}
+	public static void setItem(
+			@NotNull ItemStack itemStack,
+			@NotNull Level level,
+			@NotNull Player player,
+			@NotNull ItemStack newStack,
+			@NotNull ConfigValue<Integer> configValue,
+			SoundEvent soundEvent
+	) {
+		player.getCooldowns().addCooldown(newStack.getItem(), configValue.get());
+		if (itemStack.getCount() != 1) {
+			itemStack.shrink(1);
+			player.addItem(newStack);
+		} else player.setItemInHand(player.getUsedItemHand(), newStack);
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, PLAYERS, 1.0F, 1.0F);
 	}
 }
