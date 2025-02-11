@@ -22,11 +22,11 @@ import static ForgeStove.BottleShip.Teleport.teleportShip;
 import static java.lang.Math.*;
 import static net.minecraft.network.chat.Component.*;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_EMPTY;
-import static net.minecraft.sounds.SoundSource.PLAYERS;
+import static net.minecraft.world.InteractionResult.PASS;
 import static net.minecraft.world.InteractionResultHolder.*;
 import static org.valkyrienskies.mod.common.VSGameUtilsKt.getVsPipeline;
 public class BottleWithShipItem extends BottleWithoutShipItem {
-	public BottleWithShipItem(Properties properties) {
+	public BottleWithShipItem(@NotNull Properties properties) {
 		super(properties);
 	}
 	@Override
@@ -47,7 +47,7 @@ public class BottleWithShipItem extends BottleWithoutShipItem {
 		tooltip.add(translatable("tooltip." + MOD_ID + ".size", literal(nbt.getString("Size"))));
 	}
 	public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
-		return InteractionResult.PASS;
+		return PASS;
 	}
 	@Override
 	public void onUseTick(
@@ -81,13 +81,20 @@ public class BottleWithShipItem extends BottleWithoutShipItem {
 		if (tickCount * 1000 / 20 < bottleWithShipChargeTime.get()) return;
 		int strength = tickCount / 20 * bottleWithShipChargeStrength.get();
 		if (!(livingEntity instanceof Player player)) return;
-		if (itemStack.getTag() == null) return;
+		ItemStack newStack = new ItemStack(BOTTLE_WITHOUT_SHIP.get());
+		if (itemStack.getTag() == null) {
+			player.setItemInHand(player.getUsedItemHand(), newStack);
+			return;
+		}
 		long shipID = Long.parseLong(itemStack.getTag().getString("ID"));
 		Vec3 playerPosition = player.position();
 		MinecraftServer server = level.getServer();
 		if (server == null) return;
 		ServerShip ship = getVsPipeline(server).getShipWorld().getAllShips().getById(shipID);
-		if (ship == null) return;
+		if (ship == null) {
+			player.setItemInHand(player.getUsedItemHand(), newStack);
+			return;
+		}
 		AABBdc worldAABB = ship.getWorldAABB();
 		double depth = worldAABB.maxY() - worldAABB.minY();
 		double yawRadians = toRadians(player.getYRot());
@@ -104,9 +111,6 @@ public class BottleWithShipItem extends BottleWithoutShipItem {
 		targetY += (dy * massHeight);
 		targetZ += (dz * (depth / 2));
 		teleportShip((ServerLevel) level, ship, targetX, targetY, targetZ);
-		ItemStack newStack = new ItemStack(BOTTLE_WITHOUT_SHIP.get());
-		player.setItemInHand(player.getUsedItemHand(), newStack);
-		player.getCooldowns().addCooldown(newStack.getItem(), bottleWithShipCooldown.get());
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), BOTTLE_EMPTY, PLAYERS, 1.0F, 1.0F);
+		setItem(itemStack, level, player, newStack, bottleWithShipCooldown, BOTTLE_EMPTY);
 	}
 }
