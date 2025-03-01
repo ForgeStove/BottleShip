@@ -1,4 +1,4 @@
-package ForgeStove.BottleShip;
+package com.ForgeStove.BottleShip;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -16,9 +16,9 @@ import org.valkyrienskies.core.api.ships.ServerShip;
 
 import java.util.List;
 
-import static ForgeStove.BottleShip.BottleShip.*;
-import static ForgeStove.BottleShip.Config.*;
-import static ForgeStove.BottleShip.Teleport.teleportShip;
+import static com.ForgeStove.BottleShip.BottleShip.*;
+import static com.ForgeStove.BottleShip.Config.*;
+import static com.ForgeStove.BottleShip.Teleport.teleportShip;
 import static java.lang.Math.*;
 import static net.minecraft.network.chat.Component.*;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_EMPTY;

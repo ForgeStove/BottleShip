@@ -1,4 +1,4 @@
-package ForgeStove.BottleShip;
+package com.ForgeStove.BottleShip;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import org.apache.commons.lang3.tuple.Pair;

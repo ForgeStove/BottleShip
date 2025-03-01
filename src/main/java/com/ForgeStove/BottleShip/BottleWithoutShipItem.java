@@ -1,4 +1,4 @@
-package ForgeStove.BottleShip;
+package com.ForgeStove.BottleShip;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -16,9 +16,9 @@ import org.joml.Vector3dc;
 import org.joml.primitives.*;
 import org.valkyrienskies.core.api.ships.ServerShip;
 
-import static ForgeStove.BottleShip.BottleShip.BOTTLE_WITH_SHIP;
-import static ForgeStove.BottleShip.Config.*;
-import static ForgeStove.BottleShip.Teleport.teleportShip;
+import static com.ForgeStove.BottleShip.BottleShip.BOTTLE_WITH_SHIP;
+import static com.ForgeStove.BottleShip.Config.*;
+import static com.ForgeStove.BottleShip.Teleport.teleportShip;
 import static net.minecraft.network.chat.Component.literal;
 import static net.minecraft.sounds.SoundEvents.BOTTLE_FILL;
 import static net.minecraft.sounds.SoundSource.PLAYERS;

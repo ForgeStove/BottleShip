@@ -1,4 +1,4 @@
-package ForgeStove.BottleShip;
+package com.ForgeStove.BottleShip;
 import net.minecraft.server.level.ServerLevel;
 import net.spaceeye.vmod.utils.Vector3d;
 import org.jetbrains.annotations.NotNull;
