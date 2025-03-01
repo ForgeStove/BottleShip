@@ -11,28 +11,28 @@ logoFile = "icon.png"
 authors = "${mod_authors}"
 description = '''${mod_description}'''
 
-[[dependencies.${ mod_id }]]
+[[dependencies."${mod_id}"]]
 modId = "forge"
 mandatory = true
 versionRange = "${forge_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
+[[dependencies."${mod_id}"]]
 modId = "minecraft"
 mandatory = true
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
+[[dependencies."${mod_id}"]]
 modId = "valkyrienskies"
 mandatory = true
 versionRange = "${vs2_version_range}"
 ordering = "AFTER"
 side = "BOTH"
 
-[[dependencies.${ mod_id }]]
+[[dependencies."${mod_id}"]]
 modId = "valkyrien_mod"
 mandatory = true
 versionRange = "${vm_version_range}"
