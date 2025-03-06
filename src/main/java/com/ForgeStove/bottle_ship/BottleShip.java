@@ -1,4 +1,4 @@
-package com.forgestove.bottle_ship;
+package com.ForgeStove.bottle_ship;
 import net.minecraft.world.item.*;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -6,8 +6,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.*;
 import org.jetbrains.annotations.NotNull;
 
-import static com.forgestove.bottle_ship.BottleShip.MOD_ID;
-import static com.forgestove.bottle_ship.Config.CONFIG_SPEC;
+import static com.ForgeStove.bottle_ship.BottleShip.MOD_ID;
+import static com.ForgeStove.bottle_ship.Config.CONFIG_SPEC;
 import static net.minecraft.core.registries.Registries.CREATIVE_MODE_TAB;
 import static net.minecraft.network.chat.Component.translatable;
 import static net.minecraft.world.item.CreativeModeTab.builder;

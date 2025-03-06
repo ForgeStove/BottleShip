@@ -1,6 +1,6 @@
 {
-  "pack": {
-    "description": "ship_in_bottle resources",
-    "pack_format": 15
-  }
+	"pack": {
+		"description": "bottle_ship resources",
+		"pack_format": 15
+	}
 }
