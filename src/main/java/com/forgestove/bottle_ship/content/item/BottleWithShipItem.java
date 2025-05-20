@@ -34,7 +34,9 @@ public class BottleWithShipItem extends BottleWithoutShipItem {
 	}
 	@Override
 	public void onUseTick(@NotNull Level level, @NotNull LivingEntity livingEntity, @NotNull ItemStack itemStack, int tickLeft) {
-		onUseTickCore(level, livingEntity, BSConfig.config.bottleWithShip.chargeTime);
+		var player = getPlayer(level, livingEntity, BSConfig.config.bottleWithShip.chargeTime);
+		if (player == null) return;
+		showProgress(BSConfig.config.bottleWithShip.chargeTime, player);
 	}
 	@Override
 	public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
@@ -48,7 +50,7 @@ public class BottleWithShipItem extends BottleWithoutShipItem {
 		if (level.isClientSide()) return;
 		var tickCount = getUseDuration(itemStack) - tickLeft;
 		if (tickCount < BSConfig.config.bottleWithShip.chargeTime) return;
-		var strength = tickCount / 20 *BSConfig.config.bottleWithShip.chargeStrength;
+		var strength = tickCount / 20 * BSConfig.config.bottleWithShip.chargeStrength;
 		if (!(livingEntity instanceof Player player)) return;
 		var newStack = new ItemStack(BottleShip.BOTTLE_WITHOUT_SHIP.get());
 		if (itemStack.getTag() == null) {

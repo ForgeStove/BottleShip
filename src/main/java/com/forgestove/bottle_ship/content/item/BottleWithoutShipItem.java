@@ -15,11 +15,11 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.ClipContext.*;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.util.FakePlayer;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 public class BottleWithoutShipItem extends Item {
-	private ServerShip ship;
+	public ServerShip ship;
 	public BottleWithoutShipItem(@NotNull Properties properties) {
 		super(properties);
 	}
@@ -40,14 +40,8 @@ public class BottleWithoutShipItem extends Item {
 	}
 	@Override
 	public void onUseTick(@NotNull Level level, @NotNull LivingEntity livingEntity, @NotNull ItemStack itemStack, int tickLeft) {
-		onUseTickCore(level, livingEntity, BSConfig.config.bottleWithoutShip.chargeTime);
-	}
-	public void onUseTickCore(@NotNull Level level, @NotNull LivingEntity livingEntity, int chargeTime) {
-		if (level.isClientSide() || !(livingEntity instanceof ServerPlayer player)) return;
-		if (chargeTime == 0) {
-			player.releaseUsingItem();
-			return;
-		}
+		var player = getPlayer(level, livingEntity, BSConfig.config.bottleWithoutShip.chargeTime);
+		if (player == null) return;
 		var hitResult = level.clip(new ClipContext(
 			player.getEyePosition(1.0F),
 			player.getEyePosition(1.0F).add(player.getLookAngle().scale(player.getBlockReach())),
@@ -55,11 +49,22 @@ public class BottleWithoutShipItem extends Item {
 			Fluid.NONE,
 			player
 		));
-		if (!ship.equals(VSGameUtilsKt.getShipManagingPos((ServerLevel) level, hitResult.getBlockPos()))) {
+		if (ship == null || !ship.equals(VSGameUtilsKt.getShipManagingPos((ServerLevel) level, hitResult.getBlockPos()))) {
 			player.stopUsingItem();
 			player.displayClientMessage(Component.literal(""), true);
 			return;
 		}
+		showProgress(BSConfig.config.bottleWithoutShip.chargeTime, player);
+	}
+	public @Nullable ServerPlayer getPlayer(@NotNull Level level, @NotNull LivingEntity livingEntity, int chargeTime) {
+		if (level.isClientSide() || !(livingEntity instanceof ServerPlayer player)) return null;
+		if (chargeTime == 0) {
+			player.releaseUsingItem();
+			return null;
+		}
+		return player;
+	}
+	public void showProgress(int chargeTime, @NotNull Player player) {
 		var progress = player.getTicksUsingItem() * 20 / chargeTime;
 		var progressBar = new StringBuilder();
 		for (var i = 0; i < 20; i++) {
@@ -73,6 +78,14 @@ public class BottleWithoutShipItem extends Item {
 		if (level.isClientSide()) return;
 		if ((getUseDuration(itemStack) - tickLeft) < BSConfig.config.bottleWithoutShip.chargeTime) return;
 		if (!(livingEntity instanceof Player player)) return;
+		var hitResult = level.clip(new ClipContext(
+			player.getEyePosition(1.0F),
+			player.getEyePosition(1.0F).add(player.getLookAngle().scale(player.getBlockReach())),
+			Block.OUTLINE,
+			Fluid.NONE,
+			player
+		));
+		ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) level, hitResult.getBlockPos());
 		if (ship == null) return;
 		var worldAABB = ship.getWorldAABB();
 		var area = new AABB(worldAABB.minX(), worldAABB.minY(), worldAABB.minZ(), worldAABB.maxX(), worldAABB.maxY(), worldAABB.maxZ());

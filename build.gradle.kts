@@ -64,13 +64,14 @@ dependencies {
 	modImplementation("maven.modrinth:vmod:lK0oLDaV")
 	modImplementation("maven.modrinth:kotlin-for-forge:4.11.0")
 	modImplementation("maven.modrinth:architectury-api:9.2.14+forge")
+	compileOnly("org.joml:joml-primitives:1.10.0")
 	compileOnly(fileTree("libs"))
-//	compileOnly("io.github.llamalad7:mixinextras-common:${e("mixin_extras_version")}")
-//	implementation("io.github.llamalad7:mixinextras-${e("loader")}:${e("mixin_extras_version")}")
 	modImplementation("me.shedaniel.cloth:cloth-config-${e("loader")}:${e("cloth_config_version")}")
 	modImplementation("mezz.jei:jei-${e("minecraft_version")}-${e("loader")}:${e("jei_version")}")
-//	annotationProcessor("org.spongepowered:mixin:${e("mixin_version")}:processor")
 	compileOnly("org.jetbrains:annotations:${e("annotations_version")}")
+//	compileOnly("io.github.llamalad7:mixinextras-common:${e("mixin_extras_version")}")
+//	implementation("io.github.llamalad7:mixinextras-${e("loader")}:${e("mixin_extras_version")}")
+//	annotationProcessor("org.spongepowered:mixin:${e("mixin_version")}:processor")
 }
 publishMods {
 	file.set(tasks.jar.get().outputs.files.singleFile)
