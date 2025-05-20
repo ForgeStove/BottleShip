@@ -13,18 +13,16 @@ public class BottleShip {
 	public static final String ID = "bottle_ship";
 	public static final RegistryObject<Item> BOTTLE_WITHOUT_SHIP;
 	public static final RegistryObject<Item> BOTTLE_WITH_SHIP;
-	public static final RegistryObject<CreativeModeTab> TAB_REGISTRY_OBJECT;
-	public static final DeferredRegister<Item> ITEM_DEFERRED_REGISTER;
-	public static final DeferredRegister<CreativeModeTab> TAB_DEFERRED_REGISTER;
+	public static final RegistryObject<CreativeModeTab> TAB_REGISTRY;
+	public static final DeferredRegister<Item> ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
+	public static final DeferredRegister<CreativeModeTab> TAB_REGISTER = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ID);
 	static {
-		ITEM_DEFERRED_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
-		TAB_DEFERRED_REGISTER = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ID);
-		BOTTLE_WITHOUT_SHIP = ITEM_DEFERRED_REGISTER.register("bottle_without_ship", () -> new BottleWithoutShipItem(new Properties()));
-		BOTTLE_WITH_SHIP = ITEM_DEFERRED_REGISTER.register(
+		BOTTLE_WITHOUT_SHIP = ITEM_REGISTER.register("bottle_without_ship", () -> new BottleWithoutShipItem(new Properties()));
+		BOTTLE_WITH_SHIP = ITEM_REGISTER.register(
 			"bottle_with_ship",
 			() -> new BottleWithShipItem(new Properties().stacksTo(1).rarity(Rarity.UNCOMMON).fireResistant())
 		);
-		TAB_REGISTRY_OBJECT = TAB_DEFERRED_REGISTER.register(
+		TAB_REGISTRY = TAB_REGISTER.register(
 			"tab." + ID,
 			() -> CreativeModeTab.builder().title(Component.translatable("tab." + ID))
 								 .icon(() -> BOTTLE_WITH_SHIP.get().getDefaultInstance())
@@ -33,8 +31,8 @@ public class BottleShip {
 	}
 	public BottleShip() {
 		var eventBus = FMLJavaModLoadingContext.get().getModEventBus();
-		ITEM_DEFERRED_REGISTER.register(eventBus);
-		TAB_DEFERRED_REGISTER.register(eventBus);
+		ITEM_REGISTER.register(eventBus);
+		TAB_REGISTER.register(eventBus);
 		BSConfig.register();
 	}
 }
