@@ -67,7 +67,7 @@ dependencies {
 	compileOnly("org.joml:joml-primitives:1.10.0")
 	compileOnly(fileTree("libs"))
 	modImplementation("me.shedaniel.cloth:cloth-config-${e("loader")}:${e("cloth_config_version")}")
-	modImplementation("mezz.jei:jei-${e("minecraft_version")}-${e("loader")}:${e("jei_version")}")
+	modRuntimeOnly("mezz.jei:jei-${e("minecraft_version")}-${e("loader")}:${e("jei_version")}")
 	compileOnly("org.jetbrains:annotations:${e("annotations_version")}")
 //	compileOnly("io.github.llamalad7:mixinextras-common:${e("mixin_extras_version")}")
 //	implementation("io.github.llamalad7:mixinextras-${e("loader")}:${e("mixin_extras_version")}")
