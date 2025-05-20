@@ -26,7 +26,7 @@ public class BottleShip {
 			"tab." + ID,
 			() -> CreativeModeTab.builder().title(Component.translatable("tab." + ID))
 								 .icon(() -> BOTTLE_WITH_SHIP.get().getDefaultInstance())
-								 .displayItems((_, output) -> output.accept(BOTTLE_WITHOUT_SHIP.get())).build()
+								 .displayItems((parameters, output) -> output.accept(BOTTLE_WITHOUT_SHIP.get())).build()
 		);
 	}
 	public BottleShip() {
