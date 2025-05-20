@@ -83,7 +83,7 @@ publishMods {
 		accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
 		projectId.set("1o5XPZYT")
 		minecraftVersions.add(e("minecraft_version"))
-		requires("create", "cloth-config")
+		requires("valkyrien-skies", "vmod")
 	}
 }
 fun e(key: String) = extra[key].toString()
