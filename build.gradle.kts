@@ -74,7 +74,7 @@ dependencies {
 //	annotationProcessor("org.spongepowered:mixin:${e("mixin_version")}:processor")
 }
 publishMods {
-	file.set(tasks.jar.get().outputs.files.singleFile)
+	file.set(tasks.named("reobfJar").get().outputs.files.singleFile)
 	changelog.set(file("CHANGELOG.md").readText())
 	type.set(STABLE)
 	version.set(project.version.toString())
