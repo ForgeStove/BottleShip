@@ -14,9 +14,11 @@ public class BottleShip {
 	public static final RegistryObject<Item> BOTTLE_WITHOUT_SHIP;
 	public static final RegistryObject<Item> BOTTLE_WITH_SHIP;
 	public static final RegistryObject<CreativeModeTab> TAB_REGISTRY;
-	public static final DeferredRegister<Item> ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
-	public static final DeferredRegister<CreativeModeTab> TAB_REGISTER = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ID);
+	public static final DeferredRegister<Item> ITEM_REGISTER;
+	public static final DeferredRegister<CreativeModeTab> TAB_REGISTER;
 	static {
+		TAB_REGISTER = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ID);
+		ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
 		BOTTLE_WITHOUT_SHIP = ITEM_REGISTER.register("bottle_without_ship", () -> new BottleWithoutShipItem(new Properties()));
 		BOTTLE_WITH_SHIP = ITEM_REGISTER.register(
 			"bottle_with_ship",
