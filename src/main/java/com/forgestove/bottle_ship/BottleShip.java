@@ -1,4 +1,4 @@
-package com.forgestove.bottle_ship.content;
+package com.forgestove.bottle_ship;
 import com.forgestove.bottle_ship.content.config.BSConfig;
 import com.forgestove.bottle_ship.content.item.*;
 import net.minecraft.core.registries.Registries;

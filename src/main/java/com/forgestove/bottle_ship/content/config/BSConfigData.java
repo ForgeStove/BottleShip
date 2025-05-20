@@ -1,5 +1,5 @@
 package com.forgestove.bottle_ship.content.config;
-import com.forgestove.bottle_ship.content.BottleShip;
+import com.forgestove.bottle_ship.BottleShip;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.BoundedDiscrete;

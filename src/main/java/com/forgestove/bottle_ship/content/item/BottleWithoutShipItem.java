@@ -1,5 +1,5 @@
 package com.forgestove.bottle_ship.content.item;
-import com.forgestove.bottle_ship.content.BottleShip;
+import com.forgestove.bottle_ship.BottleShip;
 import com.forgestove.bottle_ship.content.config.BSConfig;
 import com.forgestove.bottle_ship.content.util.Common;
 import net.minecraft.nbt.CompoundTag;
