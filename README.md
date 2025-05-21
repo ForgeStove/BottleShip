@@ -8,9 +8,9 @@
 
 ## 简介
 
-- Bottle Ship 是一个基于 Forge 的 Minecraft 模组，允许你将 Valykrie Skies 的船只“收进瓶中”，并随时将其释放到世界的其他位置。该模组适用于需要移动或存储船只的场景。
+- Bottle Ship 是 [Valkyrien Skies](https://modrinth.com/mod/valkyrien-skies) 的附属模组，允许你将 Valykrie Skies 的船只“收进瓶中”，并随时将其释放到世界的其他位置。该模组适用于需要移动或存储船只的场景。
 
-- Bottle Ship is a Minecraft mod based on Forge that allows you to "bottle" ships from Valkyrie Skies and release them at any other location
+- Bottle Ship is an addon for [Valkyrien Skies](https://modrinth.com/mod/valkyrien-skies) that allows you to "bottle" ships from Valkyrie Skies and release them at any other location
   in the world. This mod is useful for scenarios where you need to move or store ships.
 
 ## 使用说明 / Usage
