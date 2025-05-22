@@ -1,3 +1,1 @@
-- Fixed dependency information
-- Fixed the issue where players could continue charging even when far away from the ship
-- Reworked the configuration
+- Fix lang
