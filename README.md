@@ -25,13 +25,13 @@
 
 ## 配置 / Configuration
 
-- `chargeStrength`：释放船只时的最大距离。
+- `chargeStrength`：释放船只时的最大距离（block）。
 - `chargeTime`：收集/释放船只所需蓄力时间（tick）。
-- `cooldown`：物品冷却时间。
+- `cooldown`：物品冷却时间（tick）。
 
-- `chargeStrength`: Maximum distance when releasing a ship.
-- `chargeTime`: Charge time (in ticks) required to bottle/release a ship.
-- `cooldown`: Item cooldown time.
+- `chargeStrength`: Maximum distance when releasing a ship (block).
+- `chargeTime`: Charge time required to bottle/release a ship (tick).
+- `cooldown`: Item cooldown time (tick).
 
 ## 常见问题
 
@@ -40,15 +40,19 @@
 - **What if I lose my Bottle With Ship item?**  
   Use the following commands to recover your ship:
   ```
-  /vmod teleport <ShipName> <x> <y> <z> (0,0,0)
+  `/vmod teleport <ShipName> <x> <y> <z> (0,0,0)`
   ```
   ```
   /vs set-static <ShipName> false
   ```
 
+- **为什么即使安装了 VMod 也显示需要模组ID为 `valkyrien_mod` 的前置？**  
+  更新瓶中船的版本至 1.1 即可，这是因为 VMod 在版本 1.0.0 时将模组ID从 valkyrien_mod 更名为 the_vmod
+- **Why does it still show that the mod with ID valkyrien_mod is required even if VMod is installed?**  
+Update the Bottle Ship version to 1.1. This is because VMod changed the mod ID from `valkyrien_mod` to `the_vmod` in version 1.0.0.
 ## 注意事项 / Notes
 
-- 本模组处于测试阶段，可能存在 bug。
+- 本模组处于测试阶段，可能存在问题。
 - 请勿将本模组相关问题反馈至 Ship In A Bottle 原作者。
 
 - This mod is in testing and may contain bugs.
