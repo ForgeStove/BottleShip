@@ -1,32 +1,23 @@
-@file:Suppress("SpellCheckingInspection")
-
 plugins {
-	idea
 	id("net.neoforged.moddev.legacyforge") version "+"
 	id("me.modmuss50.mod-publish-plugin") version "+"
 }
-base.archivesName.set(p("mod_id"))
-group = p("mod_group_id")
-version = "${p("minecraft_version")}-${p("mod_version")}+${p("upper_loader")}"
+base.archivesName.set(p("modId"))
+group = p("modGroupId")
+version = "${p("minecraft_version")}-${p("modVersion")}+${p("upper_loader")}"
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-idea.module {
-	isDownloadSources = true
-	isDownloadJavadoc = true
-}
 tasks.jar {
 	from("LICENSE")
 //	manifest { attributes(mapOf("MixinConfigs" to "${p("mod_id")}.mixins.json")) }
 }
-tasks.processResources {
-	val replace = properties.mapValues { it.value.toString() }
-	inputs.properties(replace)
-	from("src/main/resources") {
-		include("**/*.toml")
-		expand(replace)
-	}
-	into("build/resources/main")
-	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+var generateMetadata = tasks.register<ProcessResources>("generateMetadata") {
+	val values = properties.mapValues { it.value.toString() }
+	inputs.properties(values)
+	expand(values)
+	from("src/main/templates")
+	into("build/generated/sources/modMetadata")
 }
+sourceSets.main.get().resources.srcDir(generateMetadata)
 legacyForge {
 	version = "${p("minecraft_version")}-${p("loader_version")}"
 	parchment {
@@ -34,13 +25,14 @@ legacyForge {
 		minecraftVersion.set(p("minecraft_version"))
 	}
 	runs {
-		create("client") { client() }
+		create("client").client()
+		create("server").server()
 		configureEach {
 			jvmArguments.addAll("-XX:+IgnoreUnrecognizedVMOptions", "-XX:+AllowEnhancedClassRedefinition")
 			systemProperty("terminal.jline", "true")
 		}
 	}
-	mods { create(p("mod_id")) { sourceSet(sourceSets["main"]) } }
+	mods { create(p("modId")) { sourceSet(sourceSets["main"]) } }
 }
 repositories {
 	mavenLocal()
@@ -69,7 +61,7 @@ publishMods {
 	changelog.set(file("CHANGELOG.md").readText())
 	type.set(STABLE)
 	version.set(project.version.toString())
-	displayName.set("[${p("upper_loader")}] ${p("mod_name")} ${p("mod_version")}+${p("minecraft_version")}")
+	displayName.set("[${p("upper_loader")}] ${p("modDisplayName")} ${p("modVersion")}+${p("minecraft_version")}")
 	modLoaders.addAll(p("upper_loader"))
 	modrinth {
 		accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
