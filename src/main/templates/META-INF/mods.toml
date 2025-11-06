@@ -40,10 +40,3 @@ mandatory = true
 versionRange = "0"
 ordering = "NONE"
 side = "BOTH"
-
-[[dependencies."${modId}"]]
-modId = "the_vmod"
-mandatory = true
-versionRange = "0"
-ordering = "NONE"
-side = "BOTH"

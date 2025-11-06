@@ -7,8 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
@@ -59,10 +58,7 @@ public class BottleWithoutShipItem extends Item {
 		if (ship == null) return;
 		var worldAABB = ship.getWorldAABB();
 		var area = new AABB(worldAABB.minX(), worldAABB.minY(), worldAABB.minZ(), worldAABB.maxX(), worldAABB.maxY(), worldAABB.maxZ());
-		level.getEntities(null, area)
-			.stream()
-			.filter(entity -> entity instanceof Player)
-			.forEach(Entity::stopRiding);
+		level.getEntities(null, area).stream().filter(entity -> entity instanceof Player).forEach(Entity::stopRiding);
 		var position = ship.getTransform().getPositionInShip();
 		BottleItemHelper.teleportShip((ServerLevel) level, ship, -position.x(), position.y(), -position.z());
 		var newStack = createBottleWithShip(ship);
@@ -74,14 +70,12 @@ public class BottleWithoutShipItem extends Item {
 		nbt.putString("ID", String.valueOf(ship.getId()));
 		if (ship.getSlug() != null) nbt.putString("Name", ship.getSlug());
 		var shipAABB = ship.getShipAABB();
-		if (shipAABB != null) nbt.putString(
-			"Size",
-			"[§bX:§a%d §bY:§a%d §bZ:§a%d§f]".formatted(
-				shipAABB.maxX() - shipAABB.minX(),
-				shipAABB.maxY() - shipAABB.minY(),
-				shipAABB.maxZ() - shipAABB.minZ()
-			)
-		);
+		if (shipAABB != null) {
+			var sizeX = shipAABB.maxX() - shipAABB.minX();
+			var sizeY = shipAABB.maxY() - shipAABB.minY();
+			var sizeZ = shipAABB.maxZ() - shipAABB.minZ();
+			nbt.putString("Size", "§e%d §7× §e%d §7× §e%d".formatted(sizeX, sizeY, sizeZ));
+		}
 		var newStack = new ItemStack(Registry.BOTTLE_WITH_SHIP.get());
 		newStack.setTag(nbt);
 		return newStack;

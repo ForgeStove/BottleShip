@@ -43,8 +43,8 @@ repositories {
 	maven("https://maven.blamejared.com") // JEI
 }
 dependencies {
-	modImplementation("maven.modrinth:valkyrien-skies:1.20.1-forge-2.3.0-beta.9")
-	modImplementation("maven.modrinth:vmod:16KEVTxj")
+	modImplementation("maven.modrinth:valkyrien-skies:1.20.1-forge-2.3.0-beta.11")
+//	modImplementation("maven.modrinth:vmod:bng5THLF")
 	modImplementation("maven.modrinth:kotlin-for-forge:4.11.0")
 	modImplementation("maven.modrinth:architectury-api:9.2.14+forge")
 	compileOnly("org.joml:joml-primitives:1.10.0")

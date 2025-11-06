@@ -31,7 +31,7 @@ public class BottleWithShipItem extends Item {
 		if (level == null) return;
 		var nbt = itemStack.getTag();
 		if (nbt == null) return;
-		tooltip.add(translate("tooltip.%s.id".formatted(ID), literal("§b%s§f".formatted(nbt.getString("ID")))));
+		tooltip.add(translate("tooltip.%s.id".formatted(ID), literal("§a%s§f".formatted(nbt.getString("ID")))));
 		tooltip.add(translate("tooltip.%s.name".formatted(ID), literal("§b%s§f".formatted(nbt.getString("Name")))));
 		tooltip.add(translate("tooltip.%s.size".formatted(ID), literal(nbt.getString("Size"))));
 	}
@@ -69,7 +69,9 @@ public class BottleWithShipItem extends Item {
 			player.setItemInHand(player.getUsedItemHand(), newStack);
 			return;
 		}
-		var strength = tickCount / 20.0 * CONFIG.bottleWithShip.chargeStrength;
+		var worldAABB = ship.getWorldAABB();
+		var minDistance = Math.max(worldAABB.maxX() - worldAABB.minX(), worldAABB.maxZ() - worldAABB.minZ()) / 2.0 + 1;
+		var strength = Math.max(minDistance, tickCount / 20.0 * CONFIG.bottleWithShip.chargeStrength);
 		releaseShipAtTarget((ServerLevel) level, player, ship, strength);
 		setItem(itemStack, level, player, newStack, CONFIG.bottleWithShip.cooldown, SoundEvents.BOTTLE_EMPTY);
 	}
