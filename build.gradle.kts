@@ -44,7 +44,6 @@ repositories {
 }
 dependencies {
 	modImplementation("maven.modrinth:valkyrien-skies:1.20.1-forge-2.3.0-beta.11")
-//	modImplementation("maven.modrinth:vmod:bng5THLF")
 	modImplementation("maven.modrinth:kotlin-for-forge:4.11.0")
 	modImplementation("maven.modrinth:architectury-api:9.2.14+forge")
 	compileOnly("org.joml:joml-primitives:1.10.0")
@@ -52,9 +51,6 @@ dependencies {
 	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
 	modRuntimeOnly("mezz.jei:jei-${p("minecraftVersion")}-${p("loader")}:${p("jeiVersion")}")
 	compileOnly("org.jetbrains:annotations:${p("annotationsVersion")}")
-//	compileOnly("io.github.llamalad7:mixinextras-common:${p("mixin_extras_version")}")
-//	implementation("io.github.llamalad7:mixinextras-${p("loader")}:${p("mixin_extras_version")}")
-//	annotationProcessor("org.spongepowered:mixin:${p("mixin_version")}:processor")
 }
 publishMods {
 	file.set(tasks.named("reobfJar").get().outputs.files.singleFile)
@@ -67,7 +63,7 @@ publishMods {
 		accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
 		projectId.set("1o5XPZYT")
 		minecraftVersions.add(p("minecraftVersion"))
-		requires("valkyrien-skies", "vmod")
+		requires("valkyrien-skies")
 	}
 }
 fun p(key: String) = property(key).toString()
