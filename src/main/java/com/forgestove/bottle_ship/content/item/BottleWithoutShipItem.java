@@ -4,11 +4,10 @@ import com.forgestove.bottle_ship.content.Registry;
 import com.forgestove.bottle_ship.content.util.BottleItemHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.*;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -53,12 +52,12 @@ public class BottleWithoutShipItem extends Item {
 	public void releaseUsing(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity, int tickLeft) {
 		if (level.isClientSide()) return;
 		if (getUseDuration(itemStack) - tickLeft < BottleShip.CONFIG.bottleWithoutShip.chargeTime) return;
-		if (!(livingEntity instanceof Player player)) return;
+		if (!(livingEntity instanceof ServerPlayer player)) return;
 		ship = BottleItemHelper.getTargetShip((ServerLevel) level, player);
 		if (ship == null) return;
 		var worldAABB = ship.getWorldAABB();
 		var area = new AABB(worldAABB.minX(), worldAABB.minY(), worldAABB.minZ(), worldAABB.maxX(), worldAABB.maxY(), worldAABB.maxZ());
-		level.getEntities(null, area).stream().filter(entity -> entity instanceof Player).forEach(Entity::stopRiding);
+		for (var entity : level.getEntities(null, area)) if (entity instanceof ServerPlayer) entity.stopRiding();
 		var position = ship.getTransform().getPositionInShip();
 		BottleItemHelper.teleportShip((ServerLevel) level, ship, -position.x(), position.y(), -position.z());
 		var newStack = createBottleWithShip(ship);

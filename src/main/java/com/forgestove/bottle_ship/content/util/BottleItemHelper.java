@@ -28,41 +28,31 @@ public class BottleItemHelper {
 	 * @param z     目标 Z 坐标
 	 */
 	public static void teleportShip(@NotNull ServerLevel level, @NotNull ServerShip ship, double x, double y, double z) {
-		// 获取所有连接和接触的船只
 		var connectedShipIds = traverseGetAllTouchingShips(level, ship.getId());
-		// 计算最小缩放值
 		var minScale = getMinScale(level, ship, connectedShipIds);
-		// 目标位置和旋转
 		Vector3dc targetPos = new Vector3d(x, y, z);
 		var targetRotation = ship.getTransform().getShipToWorldRotation();
-		// 当前主船的缩放
 		var scaling = ship.getTransform().getShipToWorldScaling();
 		var currentScale = (scaling.x() + scaling.y() + scaling.z()) / 3.0;
 		var scaleBy = minScale != currentScale ? currentScale / minScale : 1.0;
-		// 先传送所有连接的船只
+		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
 		for (long otherShipId : connectedShipIds) {
 			if (otherShipId == ship.getId()) continue;
-			var otherShip = VSGameUtilsKt.getShipObjectWorld(level).getLoadedShips().getById(otherShipId);
+			var otherShip = shipObjectWorld.getLoadedShips().getById(otherShipId);
 			if (otherShip != null) {
-				// 计算相对于主船的位置
 				var otherPosWorld = otherShip.getTransform().getPositionInWorld();
 				var mainPosWorld = ship.getTransform().getPositionInWorld();
-				// 世界坐标转换到主船坐标系
 				var relativePos = new Vector3d(otherPosWorld).sub(mainPosWorld);
 				var mainRotInv = new Quaterniond(ship.getTransform().getShipToWorldRotation()).invert();
 				relativePos.rotate(mainRotInv);
-				// 从主船坐标系转换到新的世界坐标
 				var newPos = new Vector3d(relativePos);
 				newPos.rotate(targetRotation);
 				newPos.add(targetPos);
-				// 计算新的旋转
 				var diff = new Quaterniond(targetRotation).mul(mainRotInv);
 				var newRotation = new Quaterniond(diff).mul(otherShip.getTransform().getShipToWorldRotation());
-				// 计算新的缩放
 				var otherScaling = otherShip.getTransform().getShipToWorldScaling();
 				var otherScale = (otherScaling.x() + otherScaling.y() + otherScaling.z()) / 3.0;
 				var newScale = otherScale * scaleBy;
-				// 传送船只
 				ShipTeleportData teleportData = new ShipTeleportDataImpl(
 					newPos,
 					newRotation,
@@ -71,20 +61,18 @@ public class BottleItemHelper {
 					otherShip.getChunkClaimDimension(),
 					newScale
 				);
-				VSGameUtilsKt.getShipObjectWorld(level).teleportShip(otherShip, teleportData);
+				shipObjectWorld.teleportShip(otherShip, teleportData);
 			}
 		}
-		// 最后传送主船
-		var newMainScale = currentScale * scaleBy;
 		ShipTeleportData mainTeleportData = new ShipTeleportDataImpl(
 			targetPos,
 			targetRotation,
 			ship.getVelocity(),
 			ship.getOmega(),
 			ship.getChunkClaimDimension(),
-			newMainScale
+			currentScale * scaleBy
 		);
-		VSGameUtilsKt.getShipObjectWorld(level).teleportShip(ship, mainTeleportData);
+		shipObjectWorld.teleportShip(ship, mainTeleportData);
 	}
 	/**
 	 * 获取所有船只中的最小缩放值
@@ -96,10 +84,8 @@ public class BottleItemHelper {
 	 */
 	private static double getMinScale(@NotNull ServerLevel level, @NotNull ServerShip mainShip, @NotNull Set<Long> connectedShipIds) {
 		List<Double> scales = new ArrayList<>();
-		// 添加主船的缩放
 		var mainScaling = mainShip.getTransform().getShipToWorldScaling();
 		scales.add((mainScaling.x() + mainScaling.y() + mainScaling.z()) / 3.0);
-		// 添加所有连接船只的缩放
 		for (long shipId : connectedShipIds) {
 			var ship = VSGameUtilsKt.getShipObjectWorld(level).getAllShips().getById(shipId);
 			if (ship != null) {
@@ -109,38 +95,22 @@ public class BottleItemHelper {
 		}
 		return scales.stream().min(Double::compare).orElse(1.0);
 	}
-	/**
-	 * 遍历并获取与指定船只接触的所有船只，通过 AABB 相交检测
-	 *
-	 * @param level  服务器世界
-	 * @param shipId 起始船只 ID
-	 * @return 所有连接和接触的船只 ID 集合
-	 */
 	public static @NotNull Set<Long> traverseGetAllTouchingShips(@NotNull ServerLevel level, long shipId) {
-		// 获取维度 ID（每个维度的地面物体 ID）
-		Set<Long> dimensionIds = new HashSet<>(VSGameUtilsKt.getShipObjectWorld(level).getDimensionToGroundBodyIdImmutable().values());
-		// 用于处理船只的栈
+		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
+		Set<Long> dimensionIds = new HashSet<>(shipObjectWorld.getDimensionToGroundBodyIdImmutable().values());
 		List<Long> stack = new ArrayList<>();
 		stack.add(shipId);
-		// 已遍历船只的集合
-		Set<Long> traversedShips = new LinkedHashSet<>(dimensionIds);
-		// 处理栈中的所有船只
+		Set<Long> traversedShips = new LinkedHashSet<>();
 		while (!stack.isEmpty()) {
-			long currentShipId = stack.remove(stack.size() - 1); // 移除最后一个
-			if (!traversedShips.contains(currentShipId)) {
-				// 标记当前船只为已遍历
-				traversedShips.add(currentShipId);
-				// 获取船只对象并查找相交的船只
-				var ship = VSGameUtilsKt.getShipObjectWorld(level).getAllShips().getById(currentShipId);
-				// 获取与此船只的 AABB 相交的所有船只
-				if (ship != null) for (var intersectingShip : VSGameUtilsKt.getShipsIntersecting(level, ship.getWorldAABB())) {
-					var id = intersectingShip.getId();
-					if (!traversedShips.contains(id) && !dimensionIds.contains(id)) stack.add(id);
-				}
+			long currentShipId = stack.remove(stack.size() - 1);
+			if (traversedShips.contains(currentShipId) || dimensionIds.contains(currentShipId)) continue;
+			traversedShips.add(currentShipId);
+			var ship = shipObjectWorld.getAllShips().getById(currentShipId);
+			if (ship != null) for (var intersectingShip : VSGameUtilsKt.getShipsIntersecting(level, ship.getWorldAABB())) {
+				var id = intersectingShip.getId();
+				if (!traversedShips.contains(id) && !dimensionIds.contains(id)) stack.add(id);
 			}
 		}
-		// 从结果中移除维度 ID 中的船只
-		traversedShips.removeAll(dimensionIds);
 		return traversedShips;
 	}
 	public static void setItem(
