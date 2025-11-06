@@ -2,9 +2,9 @@ plugins {
 	id("net.neoforged.moddev.legacyforge") version "+"
 	id("me.modmuss50.mod-publish-plugin") version "+"
 }
-base.archivesName.set(p("modId"))
+base.archivesName.set(p("modName"))
 group = p("modGroupId")
-version = "${p("minecraft_version")}-${p("modVersion")}+${p("upper_loader")}"
+version = "${p("minecraftVersion")}-${p("modVersion")}+${p("upperLoader")}"
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 tasks.jar {
 	from("LICENSE")
@@ -19,10 +19,10 @@ var generateMetadata = tasks.register<ProcessResources>("generateMetadata") {
 }
 sourceSets.main.get().resources.srcDir(generateMetadata)
 legacyForge {
-	version = "${p("minecraft_version")}-${p("loader_version")}"
+	version = "${p("minecraftVersion")}-${p("loaderVersion")}"
 	parchment {
-		mappingsVersion.set(p("parchment_version"))
-		minecraftVersion.set(p("minecraft_version"))
+		mappingsVersion.set(p("parchmentVersion"))
+		minecraftVersion.set(p("minecraftVersion"))
 	}
 	runs {
 		create("client").client()
@@ -49,9 +49,9 @@ dependencies {
 	modImplementation("maven.modrinth:architectury-api:9.2.14+forge")
 	compileOnly("org.joml:joml-primitives:1.10.0")
 	compileOnly(fileTree("libs"))
-	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("cloth_config_version")}")
-	modRuntimeOnly("mezz.jei:jei-${p("minecraft_version")}-${p("loader")}:${p("jei_version")}")
-	compileOnly("org.jetbrains:annotations:${p("annotations_version")}")
+	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
+	modRuntimeOnly("mezz.jei:jei-${p("minecraftVersion")}-${p("loader")}:${p("jeiVersion")}")
+	compileOnly("org.jetbrains:annotations:${p("annotationsVersion")}")
 //	compileOnly("io.github.llamalad7:mixinextras-common:${p("mixin_extras_version")}")
 //	implementation("io.github.llamalad7:mixinextras-${p("loader")}:${p("mixin_extras_version")}")
 //	annotationProcessor("org.spongepowered:mixin:${p("mixin_version")}:processor")
@@ -61,12 +61,12 @@ publishMods {
 	changelog.set(file("CHANGELOG.md").readText())
 	type.set(STABLE)
 	version.set(project.version.toString())
-	displayName.set("[${p("upper_loader")}] ${p("modDisplayName")} ${p("modVersion")}+${p("minecraft_version")}")
-	modLoaders.addAll(p("upper_loader"))
+	displayName.set("[${p("upperLoader")}] ${p("modDisplayName")} ${p("modVersion")}+${p("minecraftVersion")}")
+	modLoaders.addAll(p("upperLoader"))
 	modrinth {
 		accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))
 		projectId.set("1o5XPZYT")
-		minecraftVersions.add(p("minecraft_version"))
+		minecraftVersions.add(p("minecraftVersion"))
 		requires("valkyrien-skies", "vmod")
 	}
 }
