@@ -6,10 +6,7 @@ base.archivesName.set(p("modName"))
 group = p("modGroupId")
 version = "${p("minecraftVersion")}-${p("modVersion")}+${p("upperLoader")}"
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
-tasks.jar {
-	from("LICENSE")
-//	manifest { attributes(mapOf("MixinConfigs" to "${p("mod_id")}.mixins.json")) }
-}
+tasks.jar { from("LICENSE") }
 var generateMetadata = tasks.register<ProcessResources>("generateMetadata") {
 	val values = properties.mapValues { it.value.toString() }
 	inputs.properties(values)
@@ -32,7 +29,7 @@ legacyForge {
 			systemProperty("terminal.jline", "true")
 		}
 	}
-	mods { create(p("modId")) { sourceSet(sourceSets["main"]) } }
+	mods.create(p("modId")).sourceSet(sourceSets.main.get())
 }
 repositories {
 	mavenLocal()
@@ -41,7 +38,6 @@ repositories {
 	maven("https://maven.shedaniel.me") // Cloth Config API
 	maven("https://maven.blamejared.com") // JEI
 	maven("https://api.modrinth.com/maven") { content { includeGroup("maven.modrinth") } } // Modrinth
-	maven("https://jitpack.io") // JitPack
 }
 dependencies {
 	modImplementation("org.valkyrienskies:valkyrienskies-120-${p("loader")}:${p("vsVersion")}") { isTransitive = false }
@@ -50,9 +46,7 @@ dependencies {
 	compileOnly("org.valkyrienskies.core:util:${p("vsCoreVersion")}") { isTransitive = false }
 	compileOnly("org.valkyrienskies.core:impl:${p("vsCoreVersion")}") { isTransitive = false }
 	compileOnly("org.joml:joml-primitives:${p("jomlVersion")}")
-//	modImplementation("com.github.SuperSpaceEye:VMod:93606a5e9b-1")
 	modImplementation("maven.modrinth:kotlin-for-forge:${p("kotlinForForgeVersion")}")
-//	modImplementation("maven.modrinth:architectury-api:${p("architecturyVersion")}+${p("loader")}")
 	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
 	modRuntimeOnly("mezz.jei:jei-${p("minecraftVersion")}-${p("loader")}:${p("jeiVersion")}")
 }
@@ -61,7 +55,7 @@ publishMods {
 	changelog.set(file("CHANGELOG.md").readText())
 	type.set(STABLE)
 	version.set(project.version.toString())
-	displayName.set("[${p("upperLoader")}] ${p("modDisplayName")} ${p("modVersion")}+${p("minecraftVersion")}")
+	displayName.set("[${p("upperLoader")}] ${p("modDisplayName")} ${p("modVersion")}-${p("minecraftVersion")}")
 	modLoaders.addAll(p("upperLoader"))
 	modrinth {
 		accessToken.set(providers.environmentVariable("MODRINTH_TOKEN"))

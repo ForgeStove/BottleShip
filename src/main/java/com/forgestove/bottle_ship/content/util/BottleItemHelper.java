@@ -10,6 +10,7 @@ import net.minecraft.world.level.ClipContext.*;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.*;
 import org.joml.*;
+import org.joml.primitives.AABBdc;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.core.apigame.ShipTeleportData;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
@@ -35,73 +36,31 @@ public class BottleItemHelper {
 		boolean toStatic
 	) {
 		var connectedShips = getTouchedShips(level, mainShip);
-		var minScale = getMinScale(mainShip, connectedShips);
-		Vector3dc targetPos = new Vector3d(x, y, z);
+		connectedShips.remove(mainShip);
+		connectedShips.add(mainShip);
 		var targetRotation = mainShip.getTransform().getShipToWorldRotation();
-		var scaling = mainShip.getTransform().getShipToWorldScaling();
-		var currentScale = (scaling.x() + scaling.y() + scaling.z()) / 3.0;
-		var scaleBy = minScale != currentScale ? currentScale / minScale : 1.0;
 		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
-		for (var otherShip : connectedShips) {
-			var worldAABB = otherShip.getWorldAABB();
-			var area = new AABB(worldAABB.minX(), worldAABB.minY(), worldAABB.minZ(), worldAABB.maxX(), worldAABB.maxY(),
-				worldAABB.maxZ());
-			for (var entity : level.getEntitiesOfClass(ServerPlayer.class, area))
-				entity.stopRiding();
-			if (otherShip.equals(mainShip)) continue;
-			var otherPosWorld = otherShip.getTransform().getPositionInWorld();
-			var mainPosWorld = mainShip.getTransform().getPositionInWorld();
-			var relativePos = new Vector3d(otherPosWorld).sub(mainPosWorld);
-			var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
-			relativePos.rotate(mainRotInv);
-			var newPos = new Vector3d(relativePos);
-			newPos.rotate(targetRotation);
-			newPos.add(targetPos);
-			var diff = new Quaterniond(targetRotation).mul(mainRotInv);
-			var newRotation = new Quaterniond(diff).mul(otherShip.getTransform().getShipToWorldRotation());
-			var otherScaling = otherShip.getTransform().getShipToWorldScaling();
-			var otherScale = (otherScaling.x() + otherScaling.y() + otherScaling.z()) / 3.0;
-			ShipTeleportData teleportData = new ShipTeleportDataImpl(
-				newPos,
-				newRotation,
-				otherShip.getVelocity(),
-				otherShip.getOmega(),
-				otherShip.getChunkClaimDimension(),
-				otherScale * scaleBy
-			);
-			shipObjectWorld.teleportShip(otherShip, teleportData);
-			otherShip.setStatic(toStatic);
-		}
-		ShipTeleportData mainTeleportData = new ShipTeleportDataImpl(
-			targetPos,
-			targetRotation,
-			mainShip.getVelocity(),
-			mainShip.getOmega(),
-			mainShip.getChunkClaimDimension(),
-			currentScale * scaleBy
-		);
-		shipObjectWorld.teleportShip(mainShip, mainTeleportData);
-		mainShip.setStatic(toStatic);
-	}
-	/**
-	 * 获取所有船只中的最小缩放值
-	 *
-	 * @param mainShip       主船只
-	 * @param connectedShips 连接的船只集合
-	 * @return 最小缩放值
-	 */
-	private static double getMinScale(@NotNull ServerShip mainShip, @NotNull Set<ServerShip> connectedShips) {
-		List<Double> scales = new ArrayList<>();
-		var mainScaling = mainShip.getTransform().getShipToWorldScaling();
-		scales.add((mainScaling.x() + mainScaling.y() + mainScaling.z()) / 3.0);
+		var dimensionId = VSGameUtilsKt.getDimensionId(level);
 		for (var ship : connectedShips) {
-			if (ship == null) continue;
+			for (var player : level.getEntitiesOfClass(ServerPlayer.class, toAABB(ship.getWorldAABB())))
+				player.stopRiding();
+			var otherPosWorld = new Vector3d(ship.getTransform().getPositionInWorld());
+			var mainPosWorld = mainShip.getTransform().getPositionInWorld();
+			var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
 			var scaling = ship.getTransform().getShipToWorldScaling();
-			scales.add((scaling.x() + scaling.y() + scaling.z()) / 3.0);
+			ShipTeleportData teleportData = new ShipTeleportDataImpl(
+				otherPosWorld.sub(mainPosWorld).rotate(mainRotInv).rotate(targetRotation).add(x, y, z),
+				new Quaterniond(targetRotation).mul(mainRotInv).mul(ship.getTransform().getShipToWorldRotation()),
+				ship.getVelocity(),
+				ship.getOmega(),
+				dimensionId,
+				(scaling.x() + scaling.y() + scaling.z()) / 3.0
+			);
+			shipObjectWorld.teleportShip(ship, teleportData);
+			ship.setStatic(toStatic);
 		}
-		return scales.stream().min(Double::compare).orElse(1.0);
 	}
-	public static @NotNull Set<ServerShip> getTouchedShips(@NotNull ServerLevel level, @NotNull ServerShip ship) {
+	public static @NotNull LinkedHashSet<ServerShip> getTouchedShips(@NotNull ServerLevel level, @NotNull ServerShip ship) {
 		var dimensionIds = VSGameUtilsKt.getShipObjectWorld(level).getDimensionToGroundBodyIdImmutable().values();
 		var stack = new ArrayList<ServerShip>();
 		stack.add(ship);
@@ -158,5 +117,9 @@ public class BottleItemHelper {
 			player
 		));
 		return VSGameUtilsKt.getShipManagingPos(level, hitResult.getBlockPos());
+	}
+	@Contract("_ -> new")
+	public static @NotNull AABB toAABB(AABBdc box) {
+		return new AABB(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
 	}
 }
