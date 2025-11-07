@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.*;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
@@ -21,6 +22,28 @@ import static com.forgestove.bottle_ship.content.util.BottleItemHelper.*;
 public class BottleWithShipItem extends Item {
 	public BottleWithShipItem(@NotNull Properties properties) {
 		super(properties);
+	}
+	@Contract("_ -> new")
+	public static @NotNull Vec3 getPlayerLookDirection(@NotNull Player player) {
+		var yaw = Math.toRadians(player.getYRot());
+		var pitch = Math.toRadians(player.getXRot());
+		var dx = -Math.sin(yaw) * Math.cos(pitch);
+		var dy = -Math.sin(pitch);
+		var dz = Math.cos(yaw) * Math.cos(pitch);
+		return new Vec3(dx, dy, dz);
+	}
+	public static void releaseShipAtTarget(@NotNull ServerLevel level, @NotNull Player player, @NotNull ServerShip ship, double strength) {
+		var direction = getPlayerLookDirection(player);
+		var shipAABB = ship.getShipAABB();
+		if (shipAABB == null) return;
+		var worldAABB = ship.getWorldAABB();
+		var depth = (worldAABB.maxY() - worldAABB.minY()) / 2.0;
+		var massHeight = ship.getInertiaData().getCenterOfMassInShip().y() - shipAABB.minY();
+		var playerPos = player.position();
+		var targetX = playerPos.x + direction.x * (strength + depth);
+		var targetY = playerPos.y + direction.y * (strength + massHeight);
+		var targetZ = playerPos.z + direction.z * (strength + depth);
+		teleportShip(level, ship, targetX, targetY, targetZ, false);
 	}
 	@Override
 	public @NotNull UseAnim getUseAnimation(@NotNull ItemStack itemStack) {
@@ -76,7 +99,7 @@ public class BottleWithShipItem extends Item {
 		setItem(itemStack, level, player, newStack, CONFIG.bottleWithShip.cooldown, SoundEvents.BOTTLE_EMPTY);
 	}
 	@Nullable
-	private ServerShip getShipFromNBT(@NotNull CompoundTag nbt, @NotNull Level level) {
+	public ServerShip getShipFromNBT(@NotNull CompoundTag nbt, @NotNull Level level) {
 		try {
 			var shipID = Long.parseLong(nbt.getString("ID"));
 			var server = level.getServer();
@@ -86,19 +109,6 @@ public class BottleWithShipItem extends Item {
 			LOGGER.error("Failed to parse ship ID from bottle NBT", e);
 			return null;
 		}
-	}
-	private void releaseShipAtTarget(@NotNull ServerLevel level, @NotNull Player player, @NotNull ServerShip ship, double strength) {
-		var direction = getPlayerLookDirection(player);
-		var shipAABB = ship.getShipAABB();
-		if (shipAABB == null) return;
-		var worldAABB = ship.getWorldAABB();
-		var depth = (worldAABB.maxY() - worldAABB.minY()) / 2.0;
-		var massHeight = ship.getInertiaData().getCenterOfMassInShip().y() - shipAABB.minY();
-		var playerPos = player.position();
-		var targetX = playerPos.x + direction.x * (strength + depth);
-		var targetY = playerPos.y + direction.y * (strength + massHeight);
-		var targetZ = playerPos.z + direction.z * (strength + depth);
-		teleportShip(level, ship, targetX, targetY, targetZ);
 	}
 	@Override
 	public int getUseDuration(@NotNull ItemStack itemStack) {

@@ -11,13 +11,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.valkyrienskies.core.api.ships.ServerShip;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 public class BottleWithoutShipItem extends Item {
-	public ServerShip ship;
 	public BottleWithoutShipItem(@NotNull Properties properties) {
 		super(properties);
 	}
@@ -31,7 +29,7 @@ public class BottleWithoutShipItem extends Item {
 		if (level.isClientSide()) return InteractionResult.PASS;
 		var player = context.getPlayer();
 		if (player == null || player instanceof FakePlayer) return InteractionResult.FAIL;
-		ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) level, context.getClickedPos());
+		var ship = VSGameUtilsKt.getShipManagingPos((ServerLevel) level, context.getClickedPos());
 		if (ship == null) return InteractionResult.FAIL;
 		player.startUsingItem(context.getHand());
 		return InteractionResult.CONSUME;
@@ -41,7 +39,7 @@ public class BottleWithoutShipItem extends Item {
 		var player = BottleItemHelper.getPlayer(level, livingEntity, BottleShip.CONFIG.bottleWithoutShip.chargeTime);
 		if (player == null) return;
 		var targetShip = BottleItemHelper.getTargetShip((ServerLevel) level, player);
-		if (ship == null || !ship.equals(targetShip)) {
+		if (targetShip == null) {
 			player.stopUsingItem();
 			player.displayClientMessage(Component.literal(""), true);
 			return;
@@ -53,18 +51,15 @@ public class BottleWithoutShipItem extends Item {
 		if (level.isClientSide()) return;
 		if (getUseDuration(itemStack) - tickLeft < BottleShip.CONFIG.bottleWithoutShip.chargeTime) return;
 		if (!(livingEntity instanceof ServerPlayer player)) return;
-		ship = BottleItemHelper.getTargetShip((ServerLevel) level, player);
+		var ship = BottleItemHelper.getTargetShip((ServerLevel) level, player);
 		if (ship == null) return;
-		var worldAABB = ship.getWorldAABB();
-		var area = new AABB(worldAABB.minX(), worldAABB.minY(), worldAABB.minZ(), worldAABB.maxX(), worldAABB.maxY(), worldAABB.maxZ());
-		for (var entity : level.getEntities(null, area)) if (entity instanceof ServerPlayer) entity.stopRiding();
 		var position = ship.getTransform().getPositionInShip();
-		BottleItemHelper.teleportShip((ServerLevel) level, ship, -position.x(), position.y(), -position.z());
+		BottleItemHelper.teleportShip((ServerLevel) level, ship, -position.x(), position.y(), -position.z(), true);
 		var newStack = createBottleWithShip(ship);
 		BottleItemHelper.setItem(itemStack, level, player, newStack, BottleShip.CONFIG.bottleWithoutShip.cooldown,
 			SoundEvents.BOTTLE_FILL);
 	}
-	private ItemStack createBottleWithShip(@NotNull ServerShip ship) {
+	public @NotNull ItemStack createBottleWithShip(@NotNull ServerShip ship) {
 		var nbt = new CompoundTag();
 		nbt.putString("ID", String.valueOf(ship.getId()));
 		if (ship.getSlug() != null) nbt.putString("Name", ship.getSlug());
@@ -84,3 +79,4 @@ public class BottleWithoutShipItem extends Item {
 		return 72000;
 	}
 }
+

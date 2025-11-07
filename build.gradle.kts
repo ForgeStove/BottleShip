@@ -37,17 +37,22 @@ legacyForge {
 repositories {
 	mavenLocal()
 	mavenCentral()
-	maven("https://api.modrinth.com/maven") // Modrinth
-//	maven("https://maven.valkyrienskies.org") // Valkyrien Skies
+	maven("https://maven.valkyrienskies.org") // Valkyrien Skies
 	maven("https://maven.shedaniel.me") // Cloth Config API
 	maven("https://maven.blamejared.com") // JEI
+	maven("https://api.modrinth.com/maven") { content { includeGroup("maven.modrinth") } } // Modrinth
+	maven("https://jitpack.io") // JitPack
 }
 dependencies {
-	modImplementation("maven.modrinth:valkyrien-skies:1.20.1-forge-2.3.0-beta.11")
-	modImplementation("maven.modrinth:kotlin-for-forge:4.11.0")
-	modImplementation("maven.modrinth:architectury-api:9.2.14+forge")
-	compileOnly("org.joml:joml-primitives:1.10.0")
-	compileOnly(fileTree("libs"))
+	modImplementation("org.valkyrienskies:valkyrienskies-120-${p("loader")}:${p("vsVersion")}") { isTransitive = false }
+	compileOnly("org.valkyrienskies.core:api:${p("vsCoreVersion")}") { isTransitive = false }
+	compileOnly("org.valkyrienskies.core:api-game:${p("vsCoreVersion")}") { isTransitive = false }
+	compileOnly("org.valkyrienskies.core:util:${p("vsCoreVersion")}") { isTransitive = false }
+	compileOnly("org.valkyrienskies.core:impl:${p("vsCoreVersion")}") { isTransitive = false }
+	compileOnly("org.joml:joml-primitives:${p("jomlVersion")}")
+//	modImplementation("com.github.SuperSpaceEye:VMod:93606a5e9b-1")
+	modImplementation("maven.modrinth:kotlin-for-forge:${p("kotlinForForgeVersion")}")
+//	modImplementation("maven.modrinth:architectury-api:${p("architecturyVersion")}+${p("loader")}")
 	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
 	modRuntimeOnly("mezz.jei:jei-${p("minecraftVersion")}-${p("loader")}:${p("jeiVersion")}")
 }
