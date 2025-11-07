@@ -2,7 +2,7 @@ package com.forgestove.bottle_ship.content.util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.*;
 import net.minecraft.sounds.*;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
@@ -10,45 +10,58 @@ import net.minecraft.world.level.ClipContext.*;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.*;
 import org.joml.*;
-import org.joml.primitives.AABBdc;
 import org.valkyrienskies.core.api.ships.ServerShip;
-import org.valkyrienskies.core.apigame.ShipTeleportData;
 import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
+import java.lang.Math;
 import java.util.*;
 public class BottleItemHelper {
 	/**
 	 * 传送船只及其所有连接的船只
 	 *
-	 * @param level    服务器世界
-	 * @param mainShip 主船只
-	 * @param x        目标 X 坐标
-	 * @param y        目标 Y 坐标
-	 * @param z        目标 Z 坐标
+	 * @param targetLevel 服务器世界
+	 * @param mainShip    主船只
+	 * @param x           目标 X 坐标
+	 * @param y           目标 Y 坐标
+	 * @param z           目标 Z 坐标
 	 */
 	public static void teleportShip(
-		@NotNull ServerLevel level,
+		@NotNull ServerLevel targetLevel,
 		@NotNull ServerShip mainShip,
 		double x,
 		double y,
 		double z,
 		boolean toStatic
 	) {
-		var connectedShips = getTouchedShips(level, mainShip);
+		var connectedShips = getTouchedShips(targetLevel, mainShip);
 		connectedShips.remove(mainShip);
 		connectedShips.add(mainShip);
 		var targetRotation = mainShip.getTransform().getShipToWorldRotation();
-		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
-		var dimensionId = VSGameUtilsKt.getDimensionId(level);
+		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(targetLevel);
+		var dimensionId = VSGameUtilsKt.getDimensionId(targetLevel);
 		for (var ship : connectedShips) {
-			for (var player : level.getEntitiesOfClass(ServerPlayer.class, toAABB(ship.getWorldAABB())))
-				player.stopRiding();
+			var box = ship.getWorldAABB();
+			var area = new AABB(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
+			for (var entity : targetLevel.getEntitiesOfClass(Entity.class, area)) {
+				if (entity instanceof Player player) {
+					player.stopRiding();
+					continue;
+				}
+				if (targetLevel.equals(entity.level())) continue;
+				var entityPosWorld = new Vector3d(entity.getX(), entity.getY(), entity.getZ());
+				var shipPosWorld = new Vector3d(ship.getTransform().getPositionInWorld());
+				var relativePos = entityPosWorld.sub(shipPosWorld);
+				var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
+				var newPos = relativePos.rotate(mainRotInv).rotate(targetRotation).add(x, y, z);
+				entity.teleportTo(targetLevel, newPos.x, newPos.y, newPos.z, Set.of(), entity.getYRot(), entity.getXRot());
+			}
+			ship.setStatic(true);
 			var otherPosWorld = new Vector3d(ship.getTransform().getPositionInWorld());
 			var mainPosWorld = mainShip.getTransform().getPositionInWorld();
 			var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
 			var scaling = ship.getTransform().getShipToWorldScaling();
-			ShipTeleportData teleportData = new ShipTeleportDataImpl(
+			var teleportData = new ShipTeleportDataImpl(
 				otherPosWorld.sub(mainPosWorld).rotate(mainRotInv).rotate(targetRotation).add(x, y, z),
 				new Quaterniond(targetRotation).mul(mainRotInv).mul(ship.getTransform().getShipToWorldRotation()),
 				ship.getVelocity(),
@@ -61,17 +74,28 @@ public class BottleItemHelper {
 		}
 	}
 	public static @NotNull LinkedHashSet<ServerShip> getTouchedShips(@NotNull ServerLevel level, @NotNull ServerShip ship) {
-		var dimensionIds = VSGameUtilsKt.getShipObjectWorld(level).getDimensionToGroundBodyIdImmutable().values();
+		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(level);
+		var dimensionIds = shipObjectWorld.getDimensionToGroundBodyIdImmutable().values();
 		var stack = new ArrayList<ServerShip>();
 		stack.add(ship);
 		var traversedShips = new LinkedHashSet<ServerShip>();
+		// 用于记录船只所在的维度
+		var shipDimensions = new HashMap<ServerShip, ServerLevel>();
+		shipDimensions.put(ship, level);
 		while (!stack.isEmpty()) {
 			var currentShip = stack.remove(stack.size() - 1);
 			if (traversedShips.contains(currentShip) || dimensionIds.contains(currentShip.getId())) continue;
 			traversedShips.add(currentShip);
-			for (var intersectingShip : VSGameUtilsKt.getShipsIntersecting(level, currentShip.getWorldAABB())) {
+			// 获取当前船只所在的维度
+			var currentDimension = shipDimensions.get(currentShip);
+			if (currentDimension == null) continue;
+			// 只在当前船只所在的维度中查找相交的船只
+			for (var intersectingShip : VSGameUtilsKt.getShipsIntersecting(currentDimension, currentShip.getWorldAABB())) {
 				if (!(intersectingShip instanceof ServerShip serverShip)) continue;
-				if (!traversedShips.contains(serverShip) && !dimensionIds.contains(serverShip.getId())) stack.add(serverShip);
+				if (!traversedShips.contains(serverShip) && !dimensionIds.contains(serverShip.getId())) {
+					stack.add(serverShip);
+					shipDimensions.put(serverShip, currentDimension);
+				}
 			}
 		}
 		return traversedShips;
@@ -99,12 +123,9 @@ public class BottleItemHelper {
 		return null;
 	}
 	public static void showProgress(int chargeTime, @NotNull Player player) {
-		var progress = player.getTicksUsingItem() * 20 / chargeTime;
-		var progressBar = new StringBuilder();
-		for (var i = 0; i < 20; i++)
-			if (i < progress) progressBar.append("§a■");
-			else progressBar.append("§c■");
-		player.displayClientMessage(Component.literal(progressBar.toString()), true);
+		var count = Math.max(0, Math.min(20, player.getTicksUsingItem() * 20 / chargeTime));
+		var component = Component.literal("§a" + "■".repeat(count) + "§c" + "■".repeat(20 - count));
+		player.displayClientMessage(component, true);
 	}
 	@Nullable
 	public static ServerShip getTargetShip(@NotNull ServerLevel level, @NotNull Player player) {
@@ -117,9 +138,5 @@ public class BottleItemHelper {
 			player
 		));
 		return VSGameUtilsKt.getShipManagingPos(level, hitResult.getBlockPos());
-	}
-	@Contract("_ -> new")
-	public static @NotNull AABB toAABB(AABBdc box) {
-		return new AABB(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
 	}
 }

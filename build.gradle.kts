@@ -40,11 +40,8 @@ repositories {
 	maven("https://api.modrinth.com/maven") { content { includeGroup("maven.modrinth") } } // Modrinth
 }
 dependencies {
-	modImplementation("org.valkyrienskies:valkyrienskies-120-${p("loader")}:${p("vsVersion")}") { isTransitive = false }
+	modImplementation("org.valkyrienskies:valkyrienskies-120-${p("loader")}:${p("vsVersion")}")
 	compileOnly("org.valkyrienskies.core:api:${p("vsCoreVersion")}") { isTransitive = false }
-	compileOnly("org.valkyrienskies.core:api-game:${p("vsCoreVersion")}") { isTransitive = false }
-	compileOnly("org.valkyrienskies.core:util:${p("vsCoreVersion")}") { isTransitive = false }
-	compileOnly("org.valkyrienskies.core:impl:${p("vsCoreVersion")}") { isTransitive = false }
 	compileOnly("org.joml:joml-primitives:${p("jomlVersion")}")
 	modImplementation("maven.modrinth:kotlin-for-forge:${p("kotlinForForgeVersion")}")
 	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
