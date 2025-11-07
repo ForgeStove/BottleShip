@@ -52,14 +52,12 @@ public class BottleItemHelper {
 				var newRotation = new Quaterniond(diff).mul(otherShip.getTransform().getShipToWorldRotation());
 				var otherScaling = otherShip.getTransform().getShipToWorldScaling();
 				var otherScale = (otherScaling.x() + otherScaling.y() + otherScaling.z()) / 3.0;
-				var newScale = otherScale * scaleBy;
 				ShipTeleportData teleportData = new ShipTeleportDataImpl(
 					newPos,
 					newRotation,
 					otherShip.getVelocity(),
 					otherShip.getOmega(),
-					otherShip.getChunkClaimDimension(),
-					newScale
+					otherShip.getChunkClaimDimension(), otherScale * scaleBy
 				);
 				shipObjectWorld.teleportShip(otherShip, teleportData);
 			}
@@ -128,14 +126,6 @@ public class BottleItemHelper {
 		} else player.setItemInHand(player.getUsedItemHand(), newStack);
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.PLAYERS, 1.0F, 1.0F);
 	}
-	@Contract(value = "_, _ -> new", pure = true)
-	public static @NotNull MutableComponent translate(@NotNull String key, @NotNull Object... args) {
-		return Component.translatable(key, args);
-	}
-	@Contract(value = "_ -> new", pure = true)
-	public static @NotNull MutableComponent literal(@NotNull String text) {
-		return Component.literal(text);
-	}
 	@Nullable
 	public static ServerPlayer getPlayer(@NotNull Level level, @NotNull LivingEntity livingEntity, int chargeTime) {
 		if (level.isClientSide() || !(livingEntity instanceof ServerPlayer player)) return null;
@@ -153,9 +143,10 @@ public class BottleItemHelper {
 	}
 	@Nullable
 	public static ServerShip getTargetShip(@NotNull ServerLevel level, @NotNull Player player) {
+		var eyePosition = player.getEyePosition(1.0F);
 		var hitResult = level.clip(new ClipContext(
-			player.getEyePosition(1.0F),
-			player.getEyePosition(1.0F).add(player.getLookAngle().scale(player.getBlockReach())),
+			eyePosition,
+			eyePosition.add(player.getLookAngle().scale(player.getBlockReach())),
 			Block.OUTLINE,
 			Fluid.NONE,
 			player

@@ -31,9 +31,9 @@ public class BottleWithShipItem extends Item {
 		if (level == null) return;
 		var nbt = itemStack.getTag();
 		if (nbt == null) return;
-		tooltip.add(translate("tooltip.%s.id".formatted(ID), literal("§a%s§f".formatted(nbt.getString("ID")))));
-		tooltip.add(translate("tooltip.%s.name".formatted(ID), literal("§b%s§f".formatted(nbt.getString("Name")))));
-		tooltip.add(translate("tooltip.%s.size".formatted(ID), literal(nbt.getString("Size"))));
+		tooltip.add(Component.translatable("tooltip.%s.id".formatted(ID), Component.literal("§a%s§f".formatted(nbt.getString("ID")))));
+		tooltip.add(Component.translatable("tooltip.%s.name".formatted(ID), Component.literal("§b%s§f".formatted(nbt.getString("Name")))));
+		tooltip.add(Component.translatable("tooltip.%s.size".formatted(ID), Component.literal(nbt.getString("Size"))));
 	}
 	@Override
 	public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {

@@ -50,7 +50,6 @@ dependencies {
 	compileOnly(fileTree("libs"))
 	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
 	modRuntimeOnly("mezz.jei:jei-${p("minecraftVersion")}-${p("loader")}:${p("jeiVersion")}")
-	compileOnly("org.jetbrains:annotations:${p("annotationsVersion")}")
 }
 publishMods {
 	file.set(tasks.named("reobfJar").get().outputs.files.singleFile)

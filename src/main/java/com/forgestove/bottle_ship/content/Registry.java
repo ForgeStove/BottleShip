@@ -3,6 +3,7 @@ import com.forgestove.bottle_ship.content.item.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item.Properties;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.*;
 
@@ -16,10 +17,10 @@ public class Registry {
 	static {
 		TAB_REGISTER = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ID);
 		ITEM_REGISTER = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
-		BOTTLE_WITHOUT_SHIP = ITEM_REGISTER.register("bottle_without_ship", () -> new BottleWithoutShipItem(new Item.Properties()));
+		BOTTLE_WITHOUT_SHIP = ITEM_REGISTER.register("bottle_without_ship", () -> new BottleWithoutShipItem(new Properties()));
 		BOTTLE_WITH_SHIP = ITEM_REGISTER.register(
 			"bottle_with_ship",
-			() -> new BottleWithShipItem(new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).fireResistant())
+			() -> new BottleWithShipItem(new Properties().stacksTo(1).rarity(Rarity.UNCOMMON).fireResistant())
 		);
 		TAB_REGISTRY = TAB_REGISTER.register(
 			"tab." + ID,
