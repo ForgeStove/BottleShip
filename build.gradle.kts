@@ -35,8 +35,6 @@ repositories {
 	mavenLocal()
 	mavenCentral()
 	maven("https://maven.valkyrienskies.org") // Valkyrien Skies
-	maven("https://maven.shedaniel.me") // Cloth Config API
-	maven("https://maven.blamejared.com") // JEI
 	maven("https://api.modrinth.com/maven") { content { includeGroup("maven.modrinth") } } // Modrinth
 }
 dependencies {
@@ -44,8 +42,6 @@ dependencies {
 	compileOnly("org.valkyrienskies.core:api:${p("vsCoreVersion")}") { isTransitive = false }
 	compileOnly("org.joml:joml-primitives:${p("jomlVersion")}")
 	modImplementation("maven.modrinth:kotlin-for-forge:${p("kotlinForForgeVersion")}")
-	modImplementation("me.shedaniel.cloth:cloth-config-${p("loader")}:${p("clothConfigVersion")}")
-	modRuntimeOnly("mezz.jei:jei-${p("minecraftVersion")}-${p("loader")}:${p("jeiVersion")}")
 }
 publishMods {
 	file.set(tasks.named("reobfJar").get().outputs.files.singleFile)

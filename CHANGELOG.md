@@ -1,1 +1,1 @@
-- Fix server crash
+- Support for VS 2.4.10

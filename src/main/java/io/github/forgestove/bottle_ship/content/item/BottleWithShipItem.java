@@ -1,5 +1,5 @@
-package com.forgestove.bottle_ship.content.item;
-import com.forgestove.bottle_ship.content.Registry;
+package io.github.forgestove.bottle_ship.content.item;
+import io.github.forgestove.bottle_ship.content.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -17,8 +17,8 @@ import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 import java.util.List;
 
-import static com.forgestove.bottle_ship.BottleShip.*;
-import static com.forgestove.bottle_ship.content.util.BottleItemHelper.*;
+import static io.github.forgestove.bottle_ship.BottleShip.*;
+import static io.github.forgestove.bottle_ship.content.util.BottleItemHelper.*;
 public class BottleWithShipItem extends Item {
 	public BottleWithShipItem(@NotNull Properties properties) {
 		super(properties);
@@ -64,9 +64,9 @@ public class BottleWithShipItem extends Item {
 	}
 	@Override
 	public void onUseTick(@NotNull Level level, @NotNull LivingEntity livingEntity, @NotNull ItemStack itemStack, int tickLeft) {
-		var player = getPlayer(level, livingEntity, CONFIG.bottleWithShip.chargeTime);
+		var player = getPlayer(level, livingEntity, config.bottleWithShip.chargeTime);
 		if (player == null) return;
-		showProgress(CONFIG.bottleWithShip.chargeTime, player);
+		showProgress(config.bottleWithShip.chargeTime, player);
 	}
 	@Override
 	public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
@@ -79,7 +79,7 @@ public class BottleWithShipItem extends Item {
 	public void releaseUsing(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity, int tickLeft) {
 		if (level.isClientSide()) return;
 		var tickCount = getUseDuration(itemStack) - tickLeft;
-		if (tickCount < CONFIG.bottleWithShip.chargeTime) return;
+		if (tickCount < config.bottleWithShip.chargeTime) return;
 		if (!(livingEntity instanceof Player player)) return;
 		var newStack = new ItemStack(Registry.BOTTLE_WITHOUT_SHIP.get());
 		var nbt = itemStack.getTag();
@@ -94,9 +94,9 @@ public class BottleWithShipItem extends Item {
 		}
 		var worldAABB = ship.getWorldAABB();
 		var minDistance = Math.max(worldAABB.maxX() - worldAABB.minX(), worldAABB.maxZ() - worldAABB.minZ()) / 2.0 + 1;
-		var strength = Math.max(minDistance, tickCount / 20.0 * CONFIG.bottleWithShip.chargeStrength);
+		var strength = Math.max(minDistance, tickCount / 20.0 * config.bottleWithShip.chargeStrength);
 		releaseShipAtTarget((ServerLevel) level, player, ship, strength);
-		setItem(itemStack, level, player, newStack, CONFIG.bottleWithShip.cooldown, SoundEvents.BOTTLE_EMPTY);
+		setItem(itemStack, level, player, newStack, config.bottleWithShip.cooldown, SoundEvents.BOTTLE_EMPTY);
 	}
 	@Nullable
 	public ServerShip getShipFromNBT(@NotNull CompoundTag nbt, @NotNull Level level) {

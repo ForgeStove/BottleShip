@@ -33,10 +33,3 @@ mandatory = true
 versionRange = "0"
 ordering = "AFTER"
 side = "BOTH"
-
-[[dependencies."${modId}"]]
-modId = "cloth_config"
-mandatory = true
-versionRange = "0"
-ordering = "NONE"
-side = "BOTH"

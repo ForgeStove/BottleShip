@@ -1,4 +1,4 @@
-package com.forgestove.bottle_ship.content.util;
+package io.github.forgestove.bottle_ship.content.util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.*;
 import net.minecraft.sounds.*;
@@ -35,42 +35,51 @@ public class BottleItemHelper {
 		boolean toStatic
 	) {
 		var connectedShips = getTouchedShips(targetLevel, mainShip);
-		connectedShips.remove(mainShip);
-		connectedShips.add(mainShip);
 		var targetRotation = mainShip.getTransform().getShipToWorldRotation();
 		var shipObjectWorld = VSGameUtilsKt.getShipObjectWorld(targetLevel);
 		var dimensionId = VSGameUtilsKt.getDimensionId(targetLevel);
 		for (var ship : connectedShips) {
-			var box = ship.getWorldAABB();
-			var area = new AABB(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
-			for (var entity : targetLevel.getEntitiesOfClass(Entity.class, area)) {
-				if (entity instanceof Player player) {
-					player.stopRiding();
-					continue;
-				}
-				if (targetLevel.equals(entity.level())) continue;
-				var entityPosWorld = new Vector3d(entity.getX(), entity.getY(), entity.getZ());
-				var shipPosWorld = new Vector3d(ship.getTransform().getPositionInWorld());
-				var relativePos = entityPosWorld.sub(shipPosWorld);
-				var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
-				var newPos = relativePos.rotate(mainRotInv).rotate(targetRotation).add(x, y, z);
-				entity.teleportTo(targetLevel, newPos.x, newPos.y, newPos.z, Set.of(), entity.getYRot(), entity.getXRot());
-			}
 			ship.setStatic(true);
+			teleportShipEntity(targetLevel, mainShip, x, y, z, ship, targetRotation);
 			var otherPosWorld = new Vector3d(ship.getTransform().getPositionInWorld());
 			var mainPosWorld = mainShip.getTransform().getPositionInWorld();
 			var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
-			var scaling = ship.getTransform().getShipToWorldScaling();
 			var teleportData = new ShipTeleportDataImpl(
 				otherPosWorld.sub(mainPosWorld).rotate(mainRotInv).rotate(targetRotation).add(x, y, z),
 				new Quaterniond(targetRotation).mul(mainRotInv).mul(ship.getTransform().getShipToWorldRotation()),
 				ship.getVelocity(),
 				ship.getOmega(),
 				dimensionId,
-				(scaling.x() + scaling.y() + scaling.z()) / 3.0
+				null,
+				null
 			);
 			shipObjectWorld.teleportShip(ship, teleportData);
 			ship.setStatic(toStatic);
+		}
+	}
+	private static void teleportShipEntity(
+		@NotNull ServerLevel targetLevel,
+		@NotNull ServerShip mainShip,
+		double x,
+		double y,
+		double z,
+		@NotNull ServerShip ship,
+		Quaterniondc targetRotation
+	) {
+		var box = ship.getWorldAABB();
+		var area = new AABB(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
+		for (var entity : targetLevel.getEntitiesOfClass(Entity.class, area)) {
+			if (entity instanceof Player player) {
+				player.stopRiding();
+				continue;
+			}
+			if (targetLevel.equals(entity.level())) continue;
+			var entityPosWorld = new Vector3d(entity.getX(), entity.getY(), entity.getZ());
+			var shipPosWorld = new Vector3d(ship.getTransform().getPositionInWorld());
+			var relativePos = entityPosWorld.sub(shipPosWorld);
+			var mainRotInv = new Quaterniond(mainShip.getTransform().getShipToWorldRotation()).invert();
+			var newPos = relativePos.rotate(mainRotInv).rotate(targetRotation).add(x, y, z);
+			entity.teleportTo(targetLevel, newPos.x, newPos.y, newPos.z, Set.of(), entity.getYRot(), entity.getXRot());
 		}
 	}
 	public static @NotNull LinkedHashSet<ServerShip> getTouchedShips(@NotNull ServerLevel level, @NotNull ServerShip ship) {
@@ -98,6 +107,8 @@ public class BottleItemHelper {
 				}
 			}
 		}
+		traversedShips.remove(ship);
+		traversedShips.add(ship);
 		return traversedShips;
 	}
 	public static void setItem(

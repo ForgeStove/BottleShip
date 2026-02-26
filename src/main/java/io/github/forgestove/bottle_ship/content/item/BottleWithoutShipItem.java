@@ -1,7 +1,7 @@
-package com.forgestove.bottle_ship.content.item;
-import com.forgestove.bottle_ship.BottleShip;
-import com.forgestove.bottle_ship.content.Registry;
-import com.forgestove.bottle_ship.content.util.BottleItemHelper;
+package io.github.forgestove.bottle_ship.content.item;
+import io.github.forgestove.bottle_ship.BottleShip;
+import io.github.forgestove.bottle_ship.content.Registry;
+import io.github.forgestove.bottle_ship.content.util.BottleItemHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.*;
@@ -36,7 +36,7 @@ public class BottleWithoutShipItem extends Item {
 	}
 	@Override
 	public void onUseTick(@NotNull Level level, @NotNull LivingEntity livingEntity, @NotNull ItemStack itemStack, int tickLeft) {
-		var player = BottleItemHelper.getPlayer(level, livingEntity, BottleShip.CONFIG.bottleWithoutShip.chargeTime);
+		var player = BottleItemHelper.getPlayer(level, livingEntity, BottleShip.config.bottleWithoutShip.chargeTime);
 		if (player == null) return;
 		var targetShip = BottleItemHelper.getTargetShip((ServerLevel) level, player);
 		if (targetShip == null) {
@@ -44,19 +44,19 @@ public class BottleWithoutShipItem extends Item {
 			player.displayClientMessage(Component.literal(""), true);
 			return;
 		}
-		BottleItemHelper.showProgress(BottleShip.CONFIG.bottleWithoutShip.chargeTime, player);
+		BottleItemHelper.showProgress(BottleShip.config.bottleWithoutShip.chargeTime, player);
 	}
 	@Override
 	public void releaseUsing(@NotNull ItemStack itemStack, @NotNull Level level, @NotNull LivingEntity livingEntity, int tickLeft) {
 		if (level.isClientSide()) return;
-		if (getUseDuration(itemStack) - tickLeft < BottleShip.CONFIG.bottleWithoutShip.chargeTime) return;
+		if (getUseDuration(itemStack) - tickLeft < BottleShip.config.bottleWithoutShip.chargeTime) return;
 		if (!(livingEntity instanceof ServerPlayer player)) return;
 		var ship = BottleItemHelper.getTargetShip((ServerLevel) level, player);
 		if (ship == null) return;
 		var position = ship.getTransform().getPositionInShip();
 		BottleItemHelper.teleportShip((ServerLevel) level, ship, -position.x(), position.y(), -position.z(), true);
 		var newStack = createBottleWithShip(ship);
-		BottleItemHelper.setItem(itemStack, level, player, newStack, BottleShip.CONFIG.bottleWithoutShip.cooldown,
+		BottleItemHelper.setItem(itemStack, level, player, newStack, BottleShip.config.bottleWithoutShip.cooldown,
 			SoundEvents.BOTTLE_FILL);
 	}
 	public @NotNull ItemStack createBottleWithShip(@NotNull ServerShip ship) {
