@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.*;
 
 import static io.github.forgestove.bottle_ship.BottleShip.ID;
-public class Registry {
+public class BSRegistry {
 	public static final RegistryObject<Item> BOTTLE_WITHOUT_SHIP;
 	public static final RegistryObject<Item> BOTTLE_WITH_SHIP;
 	public static final RegistryObject<CreativeModeTab> TAB_REGISTRY;

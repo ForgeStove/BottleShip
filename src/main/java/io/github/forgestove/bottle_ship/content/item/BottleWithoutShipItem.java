@@ -1,6 +1,6 @@
 package io.github.forgestove.bottle_ship.content.item;
 import io.github.forgestove.bottle_ship.BottleShip;
-import io.github.forgestove.bottle_ship.content.Registry;
+import io.github.forgestove.bottle_ship.content.BSRegistry;
 import io.github.forgestove.bottle_ship.content.util.BottleItemHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -70,7 +70,7 @@ public class BottleWithoutShipItem extends Item {
 			var sizeZ = shipAABB.maxZ() - shipAABB.minZ();
 			nbt.putString("Size", "§e%d §7× §e%d §7× §e%d".formatted(sizeX, sizeY, sizeZ));
 		}
-		var newStack = new ItemStack(Registry.BOTTLE_WITH_SHIP.get());
+		var newStack = new ItemStack(BSRegistry.BOTTLE_WITH_SHIP.get());
 		newStack.setTag(nbt);
 		return newStack;
 	}

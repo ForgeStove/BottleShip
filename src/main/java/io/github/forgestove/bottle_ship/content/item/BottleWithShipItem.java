@@ -1,5 +1,5 @@
 package io.github.forgestove.bottle_ship.content.item;
-import io.github.forgestove.bottle_ship.content.Registry;
+import io.github.forgestove.bottle_ship.content.BSRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -81,7 +81,7 @@ public class BottleWithShipItem extends Item {
 		var tickCount = getUseDuration(itemStack) - tickLeft;
 		if (tickCount < config.bottleWithShip.chargeTime) return;
 		if (!(livingEntity instanceof Player player)) return;
-		var newStack = new ItemStack(Registry.BOTTLE_WITHOUT_SHIP.get());
+		var newStack = new ItemStack(BSRegistry.BOTTLE_WITHOUT_SHIP.get());
 		var nbt = itemStack.getTag();
 		if (nbt == null) {
 			player.setItemInHand(player.getUsedItemHand(), newStack);
